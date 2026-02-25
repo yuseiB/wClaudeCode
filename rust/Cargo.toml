@@ -1,0 +1,22 @@
+[package]
+name = "mathphys"
+version = "0.1.0"
+edition = "2021"
+description = "Mathematical Physics computation toolkit (Rust)"
+
+[dependencies]
+# Numerical linear algebra
+nalgebra = "0.33"
+# Arbitrary precision / special functions
+# Add more as needed
+
+[dev-dependencies]
+approx = "0.5"
+
+[[bin]]
+name = "mathphys"
+path = "src/main.rs"
+
+[lib]
+name = "mathphys"
+path = "src/lib.rs"
