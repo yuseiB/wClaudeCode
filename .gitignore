@@ -1,5 +1,6 @@
 # C++ build artifacts
 cpp/build/
+cpp/examples/dp_sim_exec
 
 # Rust build artifacts
 rust/target/
