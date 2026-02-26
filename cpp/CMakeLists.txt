@@ -8,6 +8,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # --- Library ---
 add_library(mathphys_lib
     src/numerics.cpp
+    src/double_pendulum.cpp
 )
 target_include_directories(mathphys_lib PUBLIC include)
 
