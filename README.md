@@ -1,24 +1,45 @@
-# MathPhys — Double Pendulum Simulation
+# MathPhys — Mathematical Physics Simulations
 
-> Exact nonlinear double-pendulum dynamics implemented in five languages,
-> with a real-time interactive browser visualization.
-
-| Language | Integrator | Output |
-|---|---|---|
-| **Python** | adaptive RK45 (SciPy DOP853, rtol=1e-9) | matplotlib figure, CSV |
-| **C++** | fixed-step RK4 | CSV files |
-| **Rust** | fixed-step RK4 | CSV files |
-| **Julia** | fixed-step RK4 | CSV files |
-| **JavaScript / TypeScript** | fixed-step RK4 | live browser canvas |
+> Physics-first educational repository: the same model implemented in five
+> languages (Python, C++, Rust, Julia, TypeScript), organized by physical topic.
 
 ---
 
-## Physics
+## Repository layout
 
-The system consists of two point masses on massless rigid rods attached at a
-fixed pivot. Angles are measured from the downward vertical.
+```
+.
+├── src/mathphys/                     # Shared Python package (pip install -e .)
+│   ├── double_pendulum.py
+│   ├── ising_model.py
+│   └── numerics.py
+│
+├── classical_mechanics/
+│   └── double_pendulum/              # Exact nonlinear double pendulum
+│       ├── python/examples/ tests/
+│       ├── cpp/    include/ src/ tests/ examples/
+│       ├── rust/   src/ src/bin/
+│       ├── julia/  src/ tests/ examples/
+│       └── js/     src/ dist/          ← open dist/index.html (no build needed)
+│
+└── statistical_physics/
+    └── ising_model_2d/               # 2D Ising model (Metropolis MC)
+        ├── python/examples/ tests/
+        ├── cpp/    include/ src/ tests/ examples/
+        ├── rust/   src/ src/bin/
+        ├── julia/  src/ tests/ examples/
+        └── js/     src/ dist/          ← open dist/index.html (no build needed)
+```
 
-**Parameters (defaults)**
+---
+
+## Topics
+
+### 古典力学 / Classical Mechanics
+
+#### Double Pendulum (`classical_mechanics/double_pendulum/`)
+
+Exact nonlinear Lagrangian dynamics — no small-angle approximation.
 
 | Symbol | Value | Description |
 |---|---|---|
@@ -32,201 +53,196 @@ $$\ddot{\theta}_1 = \frac{-g(2m_1+m_2)\sin\theta_1 - m_2 g\sin(\theta_1-2\theta_
 
 $$\ddot{\theta}_2 = \frac{2\sin\Delta\!\left[\dot\theta_1^2 L_1(m_1+m_2)+g(m_1+m_2)\cos\theta_1+\dot\theta_2^2 L_2 m_2\cos\Delta\right]}{L_2\,D}$$
 
-where $\Delta = \theta_1 - \theta_2$ and $D = 2m_1 + m_2 - m_2\cos 2\Delta$.
+where $\Delta = \theta_1 - \theta_2$, $D = 2m_1 + m_2 - m_2\cos 2\Delta$.
 
-**Total mechanical energy** $E = T + V$ is conserved; all implementations track $\Delta E / E_0$ as an integrator quality metric.
-
-**Canonical initial conditions**
+Energy conservation $E = T + V$ tracked as integrator quality metric (ΔE/E₀).
 
 | Preset | θ₁ | θ₂ | Behaviour |
 |---|---|---|---|
 | Near-linear | 10° | 10° | Small oscillations, quasi-periodic |
 | Intermediate | 90° | 0° | Mixed regular / chaotic |
-| Chaotic | 120° | −30° | Sensitive to initial conditions, fully chaotic |
+| Chaotic | 120° | −30° | Sensitive to initial conditions |
 
 ---
 
-## Interactive Browser Demo
+### 統計物理学 / Statistical Physics
 
-The fastest way to explore the system — no installation required:
+#### 2D Ising Model (`statistical_physics/ising_model_2d/`)
 
-```bash
-# open the pre-built app directly:
-open js/dist/index.html
-```
+Ferromagnetic Ising model on an N×N square lattice.
 
-Or run the development server with hot reload:
+**Hamiltonian:**
 
-```bash
-cd js
-npm install
-npm run dev
-# → http://localhost:5173
-```
+$$H = -J \sum_{\langle i,j\rangle} s_i s_j \qquad s_i \in \{-1,+1\},\quad J>0$$
 
-The app renders four live panels:
+**Metropolis-Hastings algorithm:** For each randomly selected spin, compute
+$\Delta E = 2J\,s_i \sum_{\text{nn}} s_j$.  Accept flip if $\Delta E \le 0$ or
+with probability $e^{-\Delta E / k_B T}$.
 
-| Panel | Description |
+**Observables per site (averaged over MC sweeps after thermalisation):**
+
+| Symbol | Expression |
 |---|---|
-| **Pendulum** | Swinging rods with trailing bob-2 path |
-| **Phase portrait** | θ₂ vs ω₂, accumulates indefinitely |
-| **Trajectory** | Bob-2 Cartesian path x₂, y₂ |
-| **Energy** | Kinetic T, potential V and total E vs time |
+| $\langle E \rangle$ | mean energy |
+| $\langle\|M\|\rangle$ | order parameter (magnetisation) |
+| $C_v$ | $\mathrm{Var}(E)\,/\,(T^2 N^2)$ — specific heat |
+| $\chi$ | $\mathrm{Var}(\|M\|)\,/\,(T\,N^2)$ — susceptibility |
 
-Controls: preset buttons · θ₁/θ₂/ω₁/ω₂ sliders · Play / Pause / Reset · speed ×½ ×1 ×2 ×5 · live Δ*E*/E₀ readout.
+**Onsager's exact critical temperature** (J = k_B = 1):
 
-![Python demo output](double_pendulum.png)
+$$T_c = \frac{2J}{k_B \ln(1+\sqrt{2})} \approx 2.2692$$
+
+Both $C_v$ and $\chi$ diverge (for infinite system) at $T_c$.
 
 ---
 
-## Repository layout
+## Language summary
 
+| Language | Integrator / Algorithm | Output |
+|---|---|---|
+| **Python** | adaptive RK45 (SciPy) / NumPy vectorised MC | matplotlib PNG |
+| **C++** | fixed-step RK4 / Metropolis (C++20) | CSV files |
+| **Rust** | fixed-step RK4 / Metropolis (rand 0.8) | CSV files |
+| **Julia** | fixed-step RK4 / Metropolis (stdlib) | CSV files |
+| **TypeScript** | fixed-step RK4 / Metropolis | live browser canvas |
+
+---
+
+## Interactive Browser Demos
+
+No installation required — open the pre-built apps directly:
+
+```bash
+# Double pendulum
+open classical_mechanics/double_pendulum/js/dist/index.html
+
+# 2D Ising Model
+open statistical_physics/ising_model_2d/js/dist/index.html
 ```
-.
-├── python/               # Python package (mathphys)
-│   ├── src/mathphys/
-│   │   ├── double_pendulum.py
-│   │   └── numerics.py
-│   ├── tests/
-│   └── examples/double_pendulum_demo.py
-│
-├── cpp/                  # C++20 library + CMake
-│   ├── include/
-│   ├── src/
-│   ├── tests/
-│   └── examples/dp_sim.cpp
-│
-├── rust/                 # Rust crate (nalgebra)
-│   ├── src/
-│   │   ├── double_pendulum.rs
-│   │   ├── numerics.rs
-│   │   └── bin/dp_sim.rs
-│   └── Cargo.toml
-│
-├── julia/                # Julia package (MathPhys.jl)
-│   ├── src/
-│   ├── tests/
-│   └── examples/dp_sim.jl
-│
-├── js/                   # TypeScript browser app (Vite)
-│   ├── src/
-│   │   ├── double_pendulum.ts
-│   │   └── main.ts
-│   ├── index.html
-│   └── dist/             # pre-built — open in any browser
-│
-└── pyproject.toml        # Python project metadata
-```
+
+**Double pendulum panels:** Pendulum · Phase portrait · Trajectory · Energy vs time
+
+**Ising model controls:** Temperature slider · Low T / Critical / High T presets ·
+Play/Pause/Reset · Sweeps-per-frame speed
 
 ---
 
 ## Setup & Usage
 
-### Python
-
-**Requirements:** Python 3.11+, pip
+### Python (shared package)
 
 ```bash
-pip install -e .                          # install the mathphys package
+pip install -e ".[dev]"                 # installs mathphys from src/
 
-python python/examples/double_pendulum_demo.py   # saves double_pendulum.png
-pytest python/tests/                      # run tests
-pytest --cov=mathphys python/tests/       # with coverage
+# Double pendulum
+python classical_mechanics/double_pendulum/python/examples/double_pendulum_demo.py
+python -m pytest classical_mechanics/double_pendulum/python/tests/
+
+# 2D Ising Model
+python statistical_physics/ising_model_2d/python/examples/ising_demo.py
+python -m pytest statistical_physics/ising_model_2d/python/tests/
+
+# All tests at once
+python -m pytest
 ```
-
-The demo uses SciPy's `solve_ivp` with the DOP853 adaptive integrator
-(rtol=1e-9, atol=1e-11), then plots θ₁/θ₂, ω₁/ω₂, phase portraits and
-energy drift on a single figure.
 
 ---
 
-### C++
-
-**Requirements:** CMake ≥ 3.20, a C++20-capable compiler (GCC 12+ / Clang 15+)
+### C++ — Double Pendulum
 
 ```bash
-mkdir -p cpp/build && cd cpp/build
+cd classical_mechanics/double_pendulum/cpp
+mkdir -p build && cd build
 cmake ..
 cmake --build .
-
 ctest --output-on-failure     # run tests
 ./dp_sim_exec                 # generate 8 CSV scenarios
 ```
 
-The example writes one CSV per scenario (`case_*.csv`, `sensitivity_*.csv`,
-`mass_ratio_*.csv`) with columns: `t, theta1, omega1, theta2, omega2, x2, y2, energy`.
+### C++ — 2D Ising Model
+
+```bash
+cd statistical_physics/ising_model_2d/cpp
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+ctest --output-on-failure     # run tests
+./ising_sim                   # temperature sweep → ising2d_sweep.csv
+```
 
 ---
 
-### Rust
-
-**Requirements:** Rust 1.75+ (stable), Cargo
+### Rust — Double Pendulum
 
 ```bash
-cd rust
-cargo test                         # unit tests (inline + integration)
-cargo run --bin dp_sim --release   # generate 8 CSV scenarios
+cd classical_mechanics/double_pendulum/rust
+cargo test
+cargo run --bin dp_sim --release
 ```
 
-The crate uses [nalgebra](https://nalgebra.org/) for vector types. The same
-8 CSV scenarios are produced as the C++ version.
+### Rust — 2D Ising Model
+
+```bash
+cd statistical_physics/ising_model_2d/rust
+cargo test
+cargo run --bin ising_sim --release
+```
 
 ---
 
-### Julia
-
-**Requirements:** Julia 1.10+
+### Julia — Double Pendulum
 
 ```bash
-# Run tests
-julia --project=julia julia/tests/runtests.jl
+julia --project=classical_mechanics/double_pendulum/julia \
+      classical_mechanics/double_pendulum/julia/tests/runtests.jl
 
-# Generate CSV scenarios
-julia --project=julia julia/examples/dp_sim.jl
+julia --project=classical_mechanics/double_pendulum/julia \
+      classical_mechanics/double_pendulum/julia/examples/dp_sim.jl
 ```
 
-Julia is not required for the rest of the project. If `julia` is not in `PATH`
-the session-start hook will skip it gracefully.
+### Julia — 2D Ising Model
+
+```bash
+julia --project=statistical_physics/ising_model_2d/julia \
+      statistical_physics/ising_model_2d/julia/tests/runtests.jl
+
+julia --project=statistical_physics/ising_model_2d/julia \
+      statistical_physics/ising_model_2d/julia/examples/ising_sim.jl
+```
 
 ---
 
 ### JavaScript / TypeScript
 
-**Requirements:** Node.js 18+ (only for the dev server — the `dist/` bundle
-needs no build step)
-
 ```bash
-cd js
-npm install          # first time only
-npm run dev          # development server with HMR → localhost:5173
-npm run build        # rebuild dist/
-npm run preview      # serve the production build locally
-```
+# Double pendulum dev server
+cd classical_mechanics/double_pendulum/js
+npm install && npm run dev          # → http://localhost:5173
 
-TypeScript is compiled by Vite (transpile-only); run `npx tsc --noEmit` for
-full type checking.
+# Ising model dev server
+cd statistical_physics/ising_model_2d/js
+npm install && npm run dev          # → http://localhost:5173
+```
 
 ---
 
 ## Tests
 
-| Language | Framework | Command |
+| Language | Double Pendulum | Ising Model |
 |---|---|---|
-| Python | pytest | `pytest python/tests/` |
-| C++ | CTest | `ctest` (inside `cpp/build/`) |
-| Rust | built-in + approx | `cargo test` (inside `rust/`) |
-| Julia | @testset | `julia --project=julia julia/tests/runtests.jl` |
-
-All numerics tests cover `integrate_trapezoid` and `finite_difference`
-with known analytic solutions (constant, linear, quadratic, sinusoidal).
+| Python | `python -m pytest classical_mechanics/double_pendulum/python/tests/` | `python -m pytest statistical_physics/ising_model_2d/python/tests/` |
+| C++ | `ctest` inside `classical_mechanics/double_pendulum/cpp/build/` | `ctest` inside `statistical_physics/ising_model_2d/cpp/build/` |
+| Rust | `cargo test` inside `classical_mechanics/double_pendulum/rust/` | `cargo test` inside `statistical_physics/ising_model_2d/rust/` |
+| Julia | `julia --project=... runtests.jl` | `julia --project=... runtests.jl` |
 
 ---
 
-## Energy conservation
+## Energy / accuracy metrics
 
-A correctly implemented RK4 integrator with dt = 1 ms keeps relative energy
-drift $|\Delta E / E_0|$ below 10⁻⁶ for the 30-second chaotic scenario. The
-Python adaptive solver maintains drift below 10⁻⁸.
+**Double pendulum:** A correctly implemented RK4 integrator with dt = 1 ms keeps
+relative energy drift $|\Delta E / E_0| < 10^{-6}$ for the 30-second chaotic scenario.
+The Python adaptive solver maintains drift $< 10^{-8}$.
 
-The browser app displays the live drift percentage next to the simulation
-clock so you can verify conservation interactively.
+**Ising model:** Energy conservation is exact in the MC framework (Metropolis
+satisfies detailed balance). Finite-size effects shift the apparent $T_c$ from the
+Onsager value; the peak in $C_v$ sharpens as $N \to \infty$.
