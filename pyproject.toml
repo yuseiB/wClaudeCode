@@ -37,3 +37,4 @@ testpaths = [
     "statistical_physics/ising_model_2d/python/tests",
 ]
 addopts = "-v"
+
