@@ -1,0 +1,14 @@
+{
+  "name": "ising-model-2d",
+  "version": "0.1.0",
+  "description": "Interactive 2D Ising Model browser simulation (TypeScript + Canvas)",
+  "scripts": {
+    "dev":     "vite",
+    "build":   "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite":       "^5.2.11"
+  }
+}
