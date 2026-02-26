@@ -22,15 +22,18 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["python"]
+where = ["src"]
 
 [tool.ruff]
 line-length = 100
-src = ["python/src"]
+src = ["src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
 
 [tool.pytest.ini_options]
-testpaths = ["python/tests"]
+testpaths = [
+    "classical_mechanics/double_pendulum/python/tests",
+    "statistical_physics/ising_model_2d/python/tests",
+]
 addopts = "-v"
