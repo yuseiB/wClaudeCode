@@ -22,3 +22,10 @@ target_include_directories(test_numerics PRIVATE include)
 target_link_libraries(test_numerics PRIVATE mathphys_lib)
 
 add_test(NAME numerics COMMAND test_numerics)
+
+# --- Examples --- 
+add_executable(dp_sim_exec 
+    examples/dp_sim.cpp
+)
+target_link_libraries(dp_sim_exec PRIVATE mathphys_lib)
+target_include_directories(dp_sim_exec PRIVATE include)
