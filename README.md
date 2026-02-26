@@ -161,6 +161,12 @@ ctest --output-on-failure     # run tests
 The example writes one CSV per scenario (`case_*.csv`, `sensitivity_*.csv`,
 `mass_ratio_*.csv`) with columns: `t, theta1, omega1, theta2, omega2, x2, y2, energy`.
 
+To quantify chaos from nearly identical starts (sensitivity A/B), run:
+
+```bash
+python cpp/examples/sensitivity_report.py sensitivity_a.csv sensitivity_b.csv
+```
+
 ---
 
 ### Rust
