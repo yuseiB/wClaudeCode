@@ -27,7 +27,8 @@ echo ""
 echo "--- Fetching Rust dependencies ---"
 for RUST_DIR in \
     "$PROJECT_DIR/classical_mechanics/double_pendulum/rust" \
-    "$PROJECT_DIR/statistical_physics/ising_model_2d/rust"; do
+    "$PROJECT_DIR/statistical_physics/ising_model_2d/rust" \
+    "$PROJECT_DIR/electromagnetics/cavity_waveguide/rust"; do
   if [ -d "$RUST_DIR" ]; then
     echo "  -> $RUST_DIR"
     (cd "$RUST_DIR" && cargo fetch --quiet && cargo build --quiet 2>&1 | tail -3)
@@ -40,7 +41,8 @@ echo ""
 echo "--- Building C++ (CMake) ---"
 for CPP_DIR in \
     "$PROJECT_DIR/classical_mechanics/double_pendulum/cpp" \
-    "$PROJECT_DIR/statistical_physics/ising_model_2d/cpp"; do
+    "$PROJECT_DIR/statistical_physics/ising_model_2d/cpp" \
+    "$PROJECT_DIR/electromagnetics/cavity_waveguide/cpp"; do
   if [ -d "$CPP_DIR" ]; then
     echo "  -> $CPP_DIR"
     BUILD_DIR="$CPP_DIR/build"
@@ -60,7 +62,8 @@ if command -v julia &>/dev/null; then
   echo "--- Instantiating Julia environments ---"
   for JL_DIR in \
       "$PROJECT_DIR/classical_mechanics/double_pendulum/julia" \
-      "$PROJECT_DIR/statistical_physics/ising_model_2d/julia"; do
+      "$PROJECT_DIR/statistical_physics/ising_model_2d/julia" \
+      "$PROJECT_DIR/electromagnetics/cavity_waveguide/julia"; do
     if [ -d "$JL_DIR" ]; then
       echo "  -> $JL_DIR"
       julia --project="$JL_DIR" -e "using Pkg; Pkg.instantiate()" 2>&1 | tail -3

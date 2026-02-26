@@ -1,0 +1,11 @@
+name = "CavityWaveguide"
+uuid = "e7e4f0b1-4c3d-4d7e-8e3e-1a2b3c4d5e6f"
+version = "0.1.0"
+
+[deps]
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+Test = "8dfed614-e22c-358e-b906-22cd4c8d2c5c"
+
+[compat]
+julia = "1.6"
+SpecialFunctions = "2"

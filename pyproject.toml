@@ -35,6 +35,7 @@ select = ["E", "F", "W", "I", "N", "UP"]
 testpaths = [
     "classical_mechanics/double_pendulum/python/tests",
     "statistical_physics/ising_model_2d/python/tests",
+    "electromagnetics/cavity_waveguide/python/tests",
 ]
 addopts = "-v"
 

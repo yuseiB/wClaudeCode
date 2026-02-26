@@ -12,6 +12,8 @@
 ├── src/mathphys/                     # Shared Python package (pip install -e .)
 │   ├── double_pendulum.py
 │   ├── ising_model.py
+│   ├── cavity.py                     # ← EM cavity modes (new)
+│   ├── waveguide.py                  # ← EM waveguide modes (new)
 │   └── numerics.py
 │
 ├── classical_mechanics/
@@ -20,15 +22,23 @@
 │       ├── cpp/    include/ src/ tests/ examples/
 │       ├── rust/   src/ src/bin/
 │       ├── julia/  src/ tests/ examples/
-│       └── js/     src/ dist/          ← open dist/index.html (no build needed)
+│       └── js/     src/ dist/
 │
-└── statistical_physics/
-    └── ising_model_2d/               # 2D Ising model (Metropolis MC)
+├── statistical_physics/
+│   └── ising_model_2d/               # 2D Ising model (Metropolis MC)
+│       ├── python/examples/ tests/
+│       ├── cpp/    include/ src/ tests/ examples/
+│       ├── rust/   src/ src/bin/
+│       ├── julia/  src/ tests/ examples/
+│       └── js/     src/ dist/
+│
+└── electromagnetics/                 # ← NEW
+    └── cavity_waveguide/             # EM cavity & waveguide analytical solutions
         ├── python/examples/ tests/
         ├── cpp/    include/ src/ tests/ examples/
         ├── rust/   src/ src/bin/
         ├── julia/  src/ tests/ examples/
-        └── js/     src/ dist/          ← open dist/index.html (no build needed)
+        └── js/     src/ dist/          ← interactive field visualizer
 ```
 
 ---
@@ -96,15 +106,59 @@ Both $C_v$ and $\chi$ diverge (for infinite system) at $T_c$.
 
 ---
 
+### 電磁気学 / Electromagnetics
+
+#### EM Cavity & Waveguide (`electromagnetics/cavity_waveguide/`)
+
+Analytical solutions for PEC (Perfect Electric Conductor) cavities and waveguides.
+
+**Supported structures:**
+
+| Structure | Modes | Key formula |
+|---|---|---|
+| Rectangular cavity (a×b×d) | TE_mnp, TM_mnp | f = (c/2)√((m/a)²+(n/b)²+(p/d)²) |
+| Cylindrical cavity (R, L) | TM_mnp (χ_mn/R), TE_mnp (χ'_mn/R) | f = (c/2π)√((χ/R)²+(pπ/L)²) |
+| Spherical cavity (R) | TM_ln, TE_ln | f = c·χ_ln/(2πR), zeros via j_l(kR)=0 |
+| Rectangular waveguide (a×b) | TE_mn, TM_mn | f_c = c·k_c/(2π), k_c=π√((m/a)²+(n/b)²) |
+| Circular waveguide (R) | TE_mn (χ'_mn/R), TM_mn (χ_mn/R) | f_c = c·χ/2πR |
+
+**Dispersion relation:**
+
+$$\omega^2 = (\beta c)^2 + (k_c c)^2 \qquad \beta = \sqrt{({\omega}/{c})^2 - k_c^2}$$
+
+Propagating: $f > f_c$ (β real); evanescent: $f < f_c$ (β imaginary).
+
+**Time dependence in cavities (standing wave):**
+
+$$\mathbf{E}(\mathbf{r},t) = \mathbf{E}_0(\mathbf{r})\cos(\omega t), \qquad \mathbf{H}(\mathbf{r},t) = \mathbf{H}_0(\mathbf{r})\sin(\omega t)$$
+
+E and H are 90° out of phase in time — energy oscillates between electric and magnetic fields.
+
+**Visualisations produced by `cavity_demo.py` and `waveguide_demo.py`:**
+
+| Figure | Description |
+|---|---|
+| `cavity_freq_chart.png` | Resonant frequency bar chart for all 3 cavity types |
+| `cavity_rect_te101.png` | TE₁₀₁ mode — 4 phase panels showing E↔H energy exchange |
+| `cavity_rect_atlas.png` | 6 mode field patterns (xy cross-section heatmap + streamplot) |
+| `cavity_cyl_tm010.png`  | Cylindrical TM₀₁₀ — ρ-z cross-section + 4 phase evolution panels |
+| `cavity_sph_tm11.png`   | Spherical TM₁₁ — r-θ cross-section in Cartesian projection |
+| `waveguide_dispersion.png` | ω vs β dispersion curves for 4 modes of each waveguide type |
+| `waveguide_rect_modes.png` | Rectangular waveguide field patterns: TE₁₀, TE₂₀, TE₁₁, TM₁₁, … |
+| `waveguide_rect_prop.png`  | TE₁₀ field evolution along z (4 cross-sections) |
+| `waveguide_circ_modes.png` | Circular waveguide TE₁₁, TM₀₁, TE₂₁, TM₁₁ field patterns |
+
+---
+
 ## Language summary
 
-| Language | Integrator / Algorithm | Output |
-|---|---|---|
-| **Python** | adaptive RK45 (SciPy) / NumPy vectorised MC | matplotlib PNG |
-| **C++** | fixed-step RK4 / Metropolis (C++20) | CSV files |
-| **Rust** | fixed-step RK4 / Metropolis (rand 0.8) | CSV files |
-| **Julia** | fixed-step RK4 / Metropolis (stdlib) | CSV files |
-| **TypeScript** | fixed-step RK4 / Metropolis | live browser canvas |
+| Language | Mechanics / Statistics | EM Cavity & Waveguide | Output |
+|---|---|---|---|
+| **Python** | adaptive RK45 / NumPy MC | scipy Bessel, analytical | matplotlib PNG |
+| **C++** | fixed-step RK4 / Metropolis | Bessel table, analytical | CSV + CTest |
+| **Rust** | fixed-step RK4 / Metropolis | series Bessel, analytical | CSV + unit tests |
+| **Julia** | fixed-step RK4 / Metropolis | SpecialFunctions.jl | CSV |
+| **TypeScript** | fixed-step RK4 / Metropolis | series Bessel, analytical | live browser canvas |
 
 ---
 
@@ -118,12 +172,22 @@ open classical_mechanics/double_pendulum/js/dist/index.html
 
 # 2D Ising Model
 open statistical_physics/ising_model_2d/js/dist/index.html
+
+# EM Cavity & Waveguide Visualizer
+open electromagnetics/cavity_waveguide/js/dist/index.html
 ```
 
 **Double pendulum panels:** Pendulum · Phase portrait · Trajectory · Energy vs time
 
 **Ising model controls:** Temperature slider · Low T / Critical / High T presets ·
 Play/Pause/Reset · Sweeps-per-frame speed
+
+**EM Cavity & Waveguide Visualizer:**
+- Switch between Rectangular Cavity, Rectangular Waveguide, Circular Waveguide
+- Select mode type (TE/TM) and indices (m, n, p) via sliders
+- Presets: TE₁₀₁ cavity · TM₁₁₀ cavity · TE₁₀ waveguide · TE₁₁ circular
+- Live E-field heatmap + arrow vectors, real-time phase animation (ωt)
+- Dispersion chart (ω vs β) with operating frequency marker
 
 ---
 
@@ -212,6 +276,54 @@ julia --project=statistical_physics/ising_model_2d/julia \
 
 ---
 
+### Python — EM Cavity & Waveguide
+
+```bash
+# Run visualisations (generates PNG files)
+python electromagnetics/cavity_waveguide/python/examples/cavity_demo.py
+python electromagnetics/cavity_waveguide/python/examples/waveguide_demo.py
+
+# Tests
+python -m pytest electromagnetics/cavity_waveguide/python/tests/
+```
+
+---
+
+### C++ — EM Cavity & Waveguide
+
+```bash
+cd electromagnetics/cavity_waveguide/cpp
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+ctest --output-on-failure     # 28 tests
+./em_sim                      # print resonant frequencies + β tables
+```
+
+---
+
+### Rust — EM Cavity & Waveguide
+
+```bash
+cd electromagnetics/cavity_waveguide/rust
+cargo test                    # 29 tests
+cargo run --bin em_sim        # print resonant frequencies + dispersion
+```
+
+---
+
+### Julia — EM Cavity & Waveguide
+
+```bash
+julia --project=electromagnetics/cavity_waveguide/julia \
+      electromagnetics/cavity_waveguide/julia/tests/runtests.jl
+
+julia --project=electromagnetics/cavity_waveguide/julia \
+      electromagnetics/cavity_waveguide/julia/examples/em_sim.jl
+```
+
+---
+
 ### JavaScript / TypeScript
 
 ```bash
@@ -222,18 +334,22 @@ npm install && npm run dev          # → http://localhost:5173
 # Ising model dev server
 cd statistical_physics/ising_model_2d/js
 npm install && npm run dev          # → http://localhost:5173
+
+# EM Cavity & Waveguide visualizer dev server
+cd electromagnetics/cavity_waveguide/js
+npm install && npm run dev          # → http://localhost:5173
 ```
 
 ---
 
 ## Tests
 
-| Language | Double Pendulum | Ising Model |
-|---|---|---|
-| Python | `python -m pytest classical_mechanics/double_pendulum/python/tests/` | `python -m pytest statistical_physics/ising_model_2d/python/tests/` |
-| C++ | `ctest` inside `classical_mechanics/double_pendulum/cpp/build/` | `ctest` inside `statistical_physics/ising_model_2d/cpp/build/` |
-| Rust | `cargo test` inside `classical_mechanics/double_pendulum/rust/` | `cargo test` inside `statistical_physics/ising_model_2d/rust/` |
-| Julia | `julia --project=... runtests.jl` | `julia --project=... runtests.jl` |
+| Language | Double Pendulum | Ising Model | EM Cavity & Waveguide |
+|---|---|---|---|
+| Python | `pytest classical_mechanics/.../tests/` | `pytest statistical_physics/.../tests/` | `pytest electromagnetics/.../tests/` |
+| C++ | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` (28 tests) |
+| Rust | `cargo test` | `cargo test` | `cargo test` (29 tests) |
+| Julia | `julia ... runtests.jl` | `julia ... runtests.jl` | `julia ... runtests.jl` |
 
 ---
 
