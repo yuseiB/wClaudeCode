@@ -1,7 +1,10 @@
-# MathPhys — Double Pendulum Simulation
+# WIP: MathPhys — Double Pendulum Simulation
 
 > Exact nonlinear double-pendulum dynamics implemented in five languages,
 > with a real-time interactive browser visualization.
+>
+> > 5つの言語で実装された正確な非線形二重振り子動力学、リアルタイム対話型ブラウザ可視化付き。
+
 
 | Language | Integrator | Output |
 |---|---|---|
@@ -17,6 +20,8 @@
 
 The system consists of two point masses on massless rigid rods attached at a
 fixed pivot. Angles are measured from the downward vertical.
+
+> このシステムは、固定された支点に取り付けられた質量のない剛体棒上の2つの点質量で構成される。角度は下向きの垂直方向から測定される。
 
 **Parameters (defaults)**
 
