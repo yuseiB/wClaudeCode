@@ -22,7 +22,7 @@ dev = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["python"]
+where = ["python/src"]
 
 [tool.ruff]
 line-length = 100
@@ -34,3 +34,8 @@ select = ["E", "F", "W", "I", "N", "UP"]
 [tool.pytest.ini_options]
 testpaths = ["python/tests"]
 addopts = "-v"
+
+[tool.uv.workspace]
+members = [
+    "js",
+]
