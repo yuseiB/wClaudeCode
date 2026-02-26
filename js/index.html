@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Double Pendulum — Interactive Simulation</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header>
+      <h1>Double Pendulum</h1>
+      <p class="subtitle">
+        Exact nonlinear Lagrangian dynamics &nbsp;·&nbsp; RK4 integrator &nbsp;·&nbsp; Real-time browser simulation
+      </p>
+    </header>
+
+    <!-- ── Controls ──────────────────────────────────────────────────────── -->
+    <section class="controls">
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">Preset</span>
+        <button class="preset-btn active" data-preset="Near-linear">Near-linear (10° / 10°)</button>
+        <button class="preset-btn"        data-preset="Intermediate">Intermediate (90° / 0°)</button>
+        <button class="preset-btn"        data-preset="Chaotic">Chaotic (120° / −30°)</button>
+      </div>
+
+      <div class="ctrl-group sliders">
+        <label class="slider-row">
+          <span class="slider-name">θ₁</span>
+          <input type="range" id="theta1" min="-180" max="180" value="10" step="1" />
+          <span class="slider-val" id="theta1-label"> 10°</span>
+        </label>
+        <label class="slider-row">
+          <span class="slider-name">θ₂</span>
+          <input type="range" id="theta2" min="-180" max="180" value="10" step="1" />
+          <span class="slider-val" id="theta2-label"> 10°</span>
+        </label>
+        <label class="slider-row">
+          <span class="slider-name">ω₁</span>
+          <input type="range" id="omega1" min="-10" max="10" value="0" step="0.1" />
+          <span class="slider-val" id="omega1-label"> 0.0</span>
+        </label>
+        <label class="slider-row">
+          <span class="slider-name">ω₂</span>
+          <input type="range" id="omega2" min="-10" max="10" value="0" step="0.1" />
+          <span class="slider-val" id="omega2-label"> 0.0</span>
+        </label>
+      </div>
+
+      <div class="ctrl-group playback">
+        <button id="play-pause" class="btn-primary">▶ Play</button>
+        <button id="reset"      class="btn-secondary">↺ Reset</button>
+        <label class="speed-label">
+          Speed
+          <select id="speed">
+            <option value="0.5">× ½</option>
+            <option value="1" selected>× 1</option>
+            <option value="2">× 2</option>
+            <option value="5">× 5</option>
+          </select>
+        </label>
+        <div class="stats">
+          <span class="stat">t = <span id="time-display">0.000</span> s</span>
+          <span class="stat">ΔE/E₀ = <span id="drift-display">0.000</span> %</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Visualisations ────────────────────────────────────────────────── -->
+    <section class="viz-grid">
+
+      <div class="panel pendulum-panel">
+        <h3>Pendulum</h3>
+        <canvas id="pendulum-canvas" width="400" height="400"></canvas>
+      </div>
+
+      <div class="side-column">
+
+        <div class="panel">
+          <h3>Phase portrait &nbsp; θ₂ vs ω₂</h3>
+          <canvas id="phase-canvas" width="300" height="185"></canvas>
+        </div>
+
+        <div class="panel">
+          <h3>Bob-2 trajectory &nbsp; x₂ vs y₂</h3>
+          <canvas id="traj-canvas" width="300" height="185"></canvas>
+        </div>
+
+        <div class="panel">
+          <h3>Energy &nbsp;
+            <span style="color:#00e676">T</span> ·
+            <span style="color:#4fc3f7">V</span> ·
+            <span style="color:#fff">E</span>
+          </h3>
+          <canvas id="energy-canvas" width="300" height="150"></canvas>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

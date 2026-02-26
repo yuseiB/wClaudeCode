@@ -11,6 +11,14 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+
+# JS — keep compiled browser app in the repo
+!js/dist/
+!js/dist/**
+!js/node_modules/.package-lock.json
+
+# JS — do not track node_modules
+js/node_modules/
 .eggs/
 *.so
 *.pyd

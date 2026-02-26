@@ -1,0 +1,14 @@
+{
+  "name": "double-pendulum",
+  "version": "0.1.0",
+  "description": "Interactive double-pendulum browser simulation (TypeScript + Canvas)",
+  "scripts": {
+    "dev":     "vite",
+    "build":   "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite":       "^5.2.11"
+  }
+}
