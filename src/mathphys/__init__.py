@@ -12,6 +12,12 @@ from mathphys.waveguide import (
     RectangularWaveguideMode, RectangularWaveguide,
     CircularWaveguideMode, CircularWaveguide,
 )
+from mathphys.accelerator import (
+    Particle, Beam,
+    Drift, Quadrupole, Dipole, Sextupole, RFCavity, Marker,
+    Lattice, track,
+    make_fodo, make_ring,
+)
 
 __all__ = [
     "integrate_trapezoid", "finite_difference", "DoublePendulum",
@@ -21,4 +27,9 @@ __all__ = [
     "rectangular_cavity_modes", "cylindrical_cavity_modes", "spherical_cavity_modes",
     "RectangularWaveguideMode", "RectangularWaveguide",
     "CircularWaveguideMode", "CircularWaveguide",
+    # Accelerator physics
+    "Particle", "Beam",
+    "Drift", "Quadrupole", "Dipole", "Sextupole", "RFCavity", "Marker",
+    "Lattice", "track",
+    "make_fodo", "make_ring",
 ]

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>加速器 単粒子力学 可視化</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <header>
+    <h1>加速器物理 — 単粒子力学 可視化ツール</h1>
+    <p>Accelerator Physics Single-Particle Dynamics — Twiss Functions &amp; Phase Space</p>
+  </header>
+
+  <main>
+    <!-- ── Left sidebar: controls ── -->
+    <div class="sidebar">
+
+      <!-- API status -->
+      <div class="control-group">
+        <label>API 接続状態</label>
+        <div id="apiStatus" class="status-badge status-unknown">確認中…</div>
+        <div class="help-text">
+          バックエンドを起動:<br>
+          <code>uvicorn app:app --port 8000 \<br>&nbsp;&nbsp;--app-dir …/api</code>
+        </div>
+      </div>
+
+      <!-- Presets -->
+      <div class="control-group">
+        <label>プリセット</label>
+        <div class="btn-row">
+          <button id="presetFodo">FODO リング</button>
+          <button id="presetRing">AG リング</button>
+        </div>
+      </div>
+
+      <!-- Lattice editor -->
+      <div class="control-group">
+        <label>ラティス定義 (JSON)</label>
+        <textarea id="latticeJson" rows="10" spellcheck="false"></textarea>
+      </div>
+
+      <!-- Compute buttons -->
+      <div class="control-group">
+        <button id="computeTwiss" class="btn-primary">Twiss 計算</button>
+      </div>
+
+      <div class="control-group">
+        <label>追跡粒子数  <span id="nPartVal">20</span></label>
+        <input type="range" id="nPartSlider" min="5" max="100" step="5" value="20" />
+      </div>
+      <div class="control-group">
+        <label>ターン数  <span id="nTurnVal">200</span></label>
+        <input type="range" id="nTurnSlider" min="10" max="2000" step="10" value="200" />
+      </div>
+      <div class="control-group">
+        <button id="computeTrack" class="btn-primary">Beam 追跡</button>
+      </div>
+
+      <!-- Info panel -->
+      <div id="infoPanel" class="info-box">
+        <p>プリセットを選択して「Twiss 計算」を押してください。</p>
+      </div>
+    </div>
+
+    <!-- ── Right canvas area ── -->
+    <div class="canvas-area">
+
+      <!-- Row 1: Lattice layout + Twiss functions -->
+      <div class="canvas-row">
+        <div class="canvas-cell">
+          <div class="canvas-label">ラティス配置</div>
+          <canvas id="latticeCanvas" width="700" height="60"></canvas>
+        </div>
+      </div>
+
+      <div class="canvas-row">
+        <div class="canvas-cell">
+          <div class="canvas-label">Twiss 関数  β_x, β_y, D_x(s)</div>
+          <canvas id="twissCanvas" width="700" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 2: Phase space + Tune diagram -->
+      <div class="canvas-row two-col">
+        <div class="canvas-cell">
+          <div class="canvas-label">位相空間  x–p_x  (Poincaré)</div>
+          <canvas id="phaseCanvas" width="340" height="300"></canvas>
+        </div>
+        <div class="canvas-cell">
+          <div class="canvas-label">チューン図  Q_x – Q_y</div>
+          <canvas id="tuneCanvas"  width="340" height="300"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <section class="physics-notes">
+    <h2>物理的背景 (Physics Notes)</h2>
+    <dl>
+      <dt>FODO セル</dt>
+      <dd>QF (集束四極子) → ドリフト → QD (発散四極子) → ドリフト の繰り返し。
+          最も基本的な周期フォーカスシステム。ベータ関数は QF で最大、QD で最小。</dd>
+      <dt>Twiss パラメータ</dt>
+      <dd>β(s): ビームエンベロープ。σ_x(s) = √(ε β(s))。
+          α(s) = −dβ/ds / 2。γ(s) = (1+α²)/β。
+          Courant-Snyder 不変量  ε = γx² + 2αxp_x + βp_x²  = 一定。</dd>
+      <dt>チューン Q</dt>
+      <dd>1 回転あたりのベータトロン振動数。整数・有理数共鳴 nQ_x + mQ_y = p を避けることが重要。
+          図中の点が共鳴線から離れていれば安定動作。</dd>
+      <dt>分散 D_x(s)</dt>
+      <dd>運動量偏差 δ = (p−p₀)/p₀ の粒子の軌道ずれ: x = D_x · δ。
+          双極子磁石のある場所で発生する。</dd>
+    </dl>
+  </section>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -20,6 +20,11 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.4",
 ]
+api = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.0",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -36,6 +41,7 @@ testpaths = [
     "classical_mechanics/double_pendulum/python/tests",
     "statistical_physics/ising_model_2d/python/tests",
     "electromagnetics/cavity_waveguide/python/tests",
+    "accelerator_physics/single_particle/python/tests",
 ]
 addopts = "-v"
 

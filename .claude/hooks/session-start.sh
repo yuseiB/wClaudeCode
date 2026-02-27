@@ -28,7 +28,8 @@ echo "--- Fetching Rust dependencies ---"
 for RUST_DIR in \
     "$PROJECT_DIR/classical_mechanics/double_pendulum/rust" \
     "$PROJECT_DIR/statistical_physics/ising_model_2d/rust" \
-    "$PROJECT_DIR/electromagnetics/cavity_waveguide/rust"; do
+    "$PROJECT_DIR/electromagnetics/cavity_waveguide/rust" \
+    "$PROJECT_DIR/accelerator_physics/single_particle/rust"; do
   if [ -d "$RUST_DIR" ]; then
     echo "  -> $RUST_DIR"
     (cd "$RUST_DIR" && cargo fetch --quiet && cargo build --quiet 2>&1 | tail -3)
@@ -42,7 +43,8 @@ echo "--- Building C++ (CMake) ---"
 for CPP_DIR in \
     "$PROJECT_DIR/classical_mechanics/double_pendulum/cpp" \
     "$PROJECT_DIR/statistical_physics/ising_model_2d/cpp" \
-    "$PROJECT_DIR/electromagnetics/cavity_waveguide/cpp"; do
+    "$PROJECT_DIR/electromagnetics/cavity_waveguide/cpp" \
+    "$PROJECT_DIR/accelerator_physics/single_particle/cpp"; do
   if [ -d "$CPP_DIR" ]; then
     echo "  -> $CPP_DIR"
     BUILD_DIR="$CPP_DIR/build"
@@ -63,7 +65,8 @@ if command -v julia &>/dev/null; then
   for JL_DIR in \
       "$PROJECT_DIR/classical_mechanics/double_pendulum/julia" \
       "$PROJECT_DIR/statistical_physics/ising_model_2d/julia" \
-      "$PROJECT_DIR/electromagnetics/cavity_waveguide/julia"; do
+      "$PROJECT_DIR/electromagnetics/cavity_waveguide/julia" \
+      "$PROJECT_DIR/accelerator_physics/single_particle/julia"; do
     if [ -d "$JL_DIR" ]; then
       echo "  -> $JL_DIR"
       julia --project="$JL_DIR" -e "using Pkg; Pkg.instantiate()" 2>&1 | tail -3
@@ -73,6 +76,26 @@ if command -v julia &>/dev/null; then
 else
   echo ""
   echo "Julia not found in PATH — skipping (install Julia 1.10+ to enable)"
+fi
+
+# ── JavaScript / TypeScript (npm) ───────────────────────────────────────────
+if command -v npm &>/dev/null; then
+  echo ""
+  echo "--- Installing JS/TS dependencies (npm) ---"
+  for JS_DIR in \
+      "$PROJECT_DIR/classical_mechanics/double_pendulum/js" \
+      "$PROJECT_DIR/statistical_physics/ising_model_2d/js" \
+      "$PROJECT_DIR/electromagnetics/cavity_waveguide/js" \
+      "$PROJECT_DIR/accelerator_physics/single_particle/js"; do
+    if [ -f "$JS_DIR/package.json" ]; then
+      echo "  -> $JS_DIR"
+      (cd "$JS_DIR" && npm install --silent 2>&1 | tail -3)
+    fi
+  done
+  echo "npm: OK"
+else
+  echo ""
+  echo "npm not found in PATH — skipping JS/TS setup"
 fi
 
 echo ""
