@@ -1,0 +1,230 @@
+/* Accelerator Physics Visualizer — Stylesheet */
+
+:root {
+  --bg:         #0d1117;
+  --surface:    #161b22;
+  --border:     #30363d;
+  --text:       #c9d1d9;
+  --text-muted: #8b949e;
+  --accent:     #58a6ff;
+  --accent2:    #79c0ff;
+  --green:      #3fb950;
+  --red:        #f85149;
+  --yellow:     #d29922;
+  --btn-bg:     #21262d;
+  --btn-hover:  #30363d;
+  --btn-primary:#1f6feb;
+  --btn-primary-hover: #388bfd;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+header {
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+header h1 {
+  font-size: 1.15rem;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+header p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: calc(100vh - 80px);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  padding: 14px 12px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-group label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.control-group textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  resize: vertical;
+}
+
+.control-group input[type=range] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+button {
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+button:hover { background: var(--btn-hover); }
+
+.btn-primary {
+  background: var(--btn-primary);
+  border-color: var(--btn-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-primary:hover { background: var(--btn-primary-hover); }
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-ok      { background: #1a3a2a; color: var(--green); border: 1px solid var(--green); }
+.status-error   { background: #3a1a1a; color: var(--red);   border: 1px solid var(--red); }
+.status-unknown { background: var(--btn-bg); color: var(--text-muted); border: 1px solid var(--border); }
+
+.help-text {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.help-text code {
+  font-family: 'Cascadia Code', 'Fira Code', monospace;
+  color: var(--accent2);
+}
+
+.info-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.info-box b { color: var(--accent2); }
+
+/* ── Canvas area ── */
+.canvas-area {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.canvas-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.canvas-row.two-col {
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.canvas-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.canvas-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+canvas {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: block;
+  background: #0d1117;
+}
+
+/* ── Physics notes ── */
+.physics-notes {
+  padding: 14px 20px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.physics-notes h2 {
+  font-size: 0.95rem;
+  color: var(--accent2);
+  margin-bottom: 10px;
+}
+
+.physics-notes dl {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 8px 16px;
+  max-width: 900px;
+}
+
+.physics-notes dt {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.physics-notes dd {
+  color: var(--text-muted);
+  font-size: 0.80rem;
+}
+
+@media (max-width: 800px) {
+  main { grid-template-columns: 1fr; }
+  .sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+  .canvas-row.two-col { flex-direction: column; }
+}

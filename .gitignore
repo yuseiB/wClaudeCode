@@ -1,34 +1,32 @@
-# C++ build artifacts
-cpp/build/
-cpp/examples/dp_sim_exec
+# ── C++ build artifacts ──────────────────────────────────────────────────────
+build/
+**/examples/*_exec
+**/examples/*.exe
 
-# Rust build artifacts
-rust/target/
+# ── Rust build artifacts ─────────────────────────────────────────────────────
+target/
 
-# Python artifacts
+# ── Python artifacts ─────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *.egg-info/
-dist/
-build/
-
-# JS — keep compiled browser app in the repo
-!js/dist/
-!js/dist/**
-!js/node_modules/.package-lock.json
-
-# JS — do not track node_modules
-js/node_modules/
 .eggs/
 *.so
 *.pyd
 
-# pytest / coverage
+# ── JavaScript / TypeScript ──────────────────────────────────────────────────
+node_modules/
+
+# Keep pre-built browser apps (open dist/index.html without a build step)
+!**/js/dist/
+!**/js/dist/**
+
+# ── pytest / coverage ────────────────────────────────────────────────────────
 .pytest_cache/
 .coverage
 htmlcov/
 
-# Editor / OS
+# ── Editor / OS ──────────────────────────────────────────────────────────────
 .DS_Store
 .vscode/
 .idea/

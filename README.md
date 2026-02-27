@@ -1,29 +1,55 @@
-# WIP: MathPhys — Double Pendulum Simulation
+# MathPhys — Mathematical Physics Simulations
 
-> Exact nonlinear double-pendulum dynamics implemented in five languages,
-> with a real-time interactive browser visualization.
->
-> > 5つの言語で実装された正確な非線形二重振り子動力学、リアルタイム対話型ブラウザ可視化付き。
-
-
-| Language | Integrator | Output |
-|---|---|---|
-| **Python** | adaptive RK45 (SciPy DOP853, rtol=1e-9) | matplotlib figure, CSV |
-| **C++** | fixed-step RK4 | CSV files |
-| **Rust** | fixed-step RK4 | CSV files |
-| **Julia** | fixed-step RK4 | CSV files |
-| **JavaScript / TypeScript** | fixed-step RK4 | live browser canvas |
+> Physics-first educational repository: the same model implemented in five
+> languages (Python, C++, Rust, Julia, TypeScript), organized by physical topic.
 
 ---
 
-## Physics
+## Repository layout
 
-The system consists of two point masses on massless rigid rods attached at a
-fixed pivot. Angles are measured from the downward vertical.
+```
+.
+├── src/mathphys/                     # Shared Python package (pip install -e .)
+│   ├── double_pendulum.py
+│   ├── ising_model.py
+│   ├── cavity.py                     # ← EM cavity modes (new)
+│   ├── waveguide.py                  # ← EM waveguide modes (new)
+│   └── numerics.py
+│
+├── classical_mechanics/
+│   └── double_pendulum/              # Exact nonlinear double pendulum
+│       ├── python/examples/ tests/
+│       ├── cpp/    include/ src/ tests/ examples/
+│       ├── rust/   src/ src/bin/
+│       ├── julia/  src/ tests/ examples/
+│       └── js/     src/ dist/
+│
+├── statistical_physics/
+│   └── ising_model_2d/               # 2D Ising model (Metropolis MC)
+│       ├── python/examples/ tests/
+│       ├── cpp/    include/ src/ tests/ examples/
+│       ├── rust/   src/ src/bin/
+│       ├── julia/  src/ tests/ examples/
+│       └── js/     src/ dist/
+│
+└── electromagnetics/                 # ← NEW
+    └── cavity_waveguide/             # EM cavity & waveguide analytical solutions
+        ├── python/examples/ tests/
+        ├── cpp/    include/ src/ tests/ examples/
+        ├── rust/   src/ src/bin/
+        ├── julia/  src/ tests/ examples/
+        └── js/     src/ dist/          ← interactive field visualizer
+```
 
-> このシステムは、固定された支点に取り付けられた質量のない剛体棒上の2つの点質量で構成される。角度は下向きの垂直方向から測定される。
+---
 
-**Parameters (defaults)**
+## Topics
+
+### 古典力学 / Classical Mechanics
+
+#### Double Pendulum (`classical_mechanics/double_pendulum/`)
+
+Exact nonlinear Lagrangian dynamics — no small-angle approximation.
 
 | Symbol | Value | Description |
 |---|---|---|
@@ -37,201 +63,302 @@ $$\ddot{\theta}_1 = \frac{-g(2m_1+m_2)\sin\theta_1 - m_2 g\sin(\theta_1-2\theta_
 
 $$\ddot{\theta}_2 = \frac{2\sin\Delta\!\left[\dot\theta_1^2 L_1(m_1+m_2)+g(m_1+m_2)\cos\theta_1+\dot\theta_2^2 L_2 m_2\cos\Delta\right]}{L_2\,D}$$
 
-where $\Delta = \theta_1 - \theta_2$ and $D = 2m_1 + m_2 - m_2\cos 2\Delta$.
+where $\Delta = \theta_1 - \theta_2$, $D = 2m_1 + m_2 - m_2\cos 2\Delta$.
 
-**Total mechanical energy** $E = T + V$ is conserved; all implementations track $\Delta E / E_0$ as an integrator quality metric.
-
-**Canonical initial conditions**
+Energy conservation $E = T + V$ tracked as integrator quality metric (ΔE/E₀).
 
 | Preset | θ₁ | θ₂ | Behaviour |
 |---|---|---|---|
 | Near-linear | 10° | 10° | Small oscillations, quasi-periodic |
 | Intermediate | 90° | 0° | Mixed regular / chaotic |
-| Chaotic | 120° | −30° | Sensitive to initial conditions, fully chaotic |
+| Chaotic | 120° | −30° | Sensitive to initial conditions |
 
 ---
 
-## Interactive Browser Demo
+### 統計物理学 / Statistical Physics
 
-The fastest way to explore the system — no installation required:
+#### 2D Ising Model (`statistical_physics/ising_model_2d/`)
 
-```bash
-# open the pre-built app directly:
-open js/dist/index.html
-```
+Ferromagnetic Ising model on an N×N square lattice.
 
-Or run the development server with hot reload:
+**Hamiltonian:**
 
-```bash
-cd js
-npm install
-npm run dev
-# → http://localhost:5173
-```
+$$H = -J \sum_{\langle i,j\rangle} s_i s_j \qquad s_i \in \{-1,+1\},\quad J>0$$
 
-The app renders four live panels:
+**Metropolis-Hastings algorithm:** For each randomly selected spin, compute
+$\Delta E = 2J\,s_i \sum_{\text{nn}} s_j$.  Accept flip if $\Delta E \le 0$ or
+with probability $e^{-\Delta E / k_B T}$.
 
-| Panel | Description |
+**Observables per site (averaged over MC sweeps after thermalisation):**
+
+| Symbol | Expression |
 |---|---|
-| **Pendulum** | Swinging rods with trailing bob-2 path |
-| **Phase portrait** | θ₂ vs ω₂, accumulates indefinitely |
-| **Trajectory** | Bob-2 Cartesian path x₂, y₂ |
-| **Energy** | Kinetic T, potential V and total E vs time |
+| $\langle E \rangle$ | mean energy |
+| $\langle\|M\|\rangle$ | order parameter (magnetisation) |
+| $C_v$ | $\mathrm{Var}(E)\,/\,(T^2 N^2)$ — specific heat |
+| $\chi$ | $\mathrm{Var}(\|M\|)\,/\,(T\,N^2)$ — susceptibility |
 
-Controls: preset buttons · θ₁/θ₂/ω₁/ω₂ sliders · Play / Pause / Reset · speed ×½ ×1 ×2 ×5 · live Δ*E*/E₀ readout.
+**Onsager's exact critical temperature** (J = k_B = 1):
 
-![Python demo output](double_pendulum.png)
+$$T_c = \frac{2J}{k_B \ln(1+\sqrt{2})} \approx 2.2692$$
+
+Both $C_v$ and $\chi$ diverge (for infinite system) at $T_c$.
 
 ---
 
-## Repository layout
+### 電磁気学 / Electromagnetics
 
+#### EM Cavity & Waveguide (`electromagnetics/cavity_waveguide/`)
+
+Analytical solutions for PEC (Perfect Electric Conductor) cavities and waveguides.
+
+**Supported structures:**
+
+| Structure | Modes | Key formula |
+|---|---|---|
+| Rectangular cavity (a×b×d) | TE_mnp, TM_mnp | f = (c/2)√((m/a)²+(n/b)²+(p/d)²) |
+| Cylindrical cavity (R, L) | TM_mnp (χ_mn/R), TE_mnp (χ'_mn/R) | f = (c/2π)√((χ/R)²+(pπ/L)²) |
+| Spherical cavity (R) | TM_ln, TE_ln | f = c·χ_ln/(2πR), zeros via j_l(kR)=0 |
+| Rectangular waveguide (a×b) | TE_mn, TM_mn | f_c = c·k_c/(2π), k_c=π√((m/a)²+(n/b)²) |
+| Circular waveguide (R) | TE_mn (χ'_mn/R), TM_mn (χ_mn/R) | f_c = c·χ/2πR |
+
+**Dispersion relation:**
+
+$$\omega^2 = (\beta c)^2 + (k_c c)^2 \qquad \beta = \sqrt{({\omega}/{c})^2 - k_c^2}$$
+
+Propagating: $f > f_c$ (β real); evanescent: $f < f_c$ (β imaginary).
+
+**Time dependence in cavities (standing wave):**
+
+$$\mathbf{E}(\mathbf{r},t) = \mathbf{E}_0(\mathbf{r})\cos(\omega t), \qquad \mathbf{H}(\mathbf{r},t) = \mathbf{H}_0(\mathbf{r})\sin(\omega t)$$
+
+E and H are 90° out of phase in time — energy oscillates between electric and magnetic fields.
+
+**Visualisations produced by `cavity_demo.py` and `waveguide_demo.py`:**
+
+| Figure | Description |
+|---|---|
+| `cavity_freq_chart.png` | Resonant frequency bar chart for all 3 cavity types |
+| `cavity_rect_te101.png` | TE₁₀₁ mode — 4 phase panels showing E↔H energy exchange |
+| `cavity_rect_atlas.png` | 6 mode field patterns (xy cross-section heatmap + streamplot) |
+| `cavity_cyl_tm010.png`  | Cylindrical TM₀₁₀ — ρ-z cross-section + 4 phase evolution panels |
+| `cavity_sph_tm11.png`   | Spherical TM₁₁ — r-θ cross-section in Cartesian projection |
+| `waveguide_dispersion.png` | ω vs β dispersion curves for 4 modes of each waveguide type |
+| `waveguide_rect_modes.png` | Rectangular waveguide field patterns: TE₁₀, TE₂₀, TE₁₁, TM₁₁, … |
+| `waveguide_rect_prop.png`  | TE₁₀ field evolution along z (4 cross-sections) |
+| `waveguide_circ_modes.png` | Circular waveguide TE₁₁, TM₀₁, TE₂₁, TM₁₁ field patterns |
+
+---
+
+## Language summary
+
+| Language | Mechanics / Statistics | EM Cavity & Waveguide | Output |
+|---|---|---|---|
+| **Python** | adaptive RK45 / NumPy MC | scipy Bessel, analytical | matplotlib PNG |
+| **C++** | fixed-step RK4 / Metropolis | Bessel table, analytical | CSV + CTest |
+| **Rust** | fixed-step RK4 / Metropolis | series Bessel, analytical | CSV + unit tests |
+| **Julia** | fixed-step RK4 / Metropolis | SpecialFunctions.jl | CSV |
+| **TypeScript** | fixed-step RK4 / Metropolis | series Bessel, analytical | live browser canvas |
+
+---
+
+## Interactive Browser Demos
+
+No installation required — open the pre-built apps directly:
+
+```bash
+# Double pendulum
+open classical_mechanics/double_pendulum/js/dist/index.html
+
+# 2D Ising Model
+open statistical_physics/ising_model_2d/js/dist/index.html
+
+# EM Cavity & Waveguide Visualizer
+open electromagnetics/cavity_waveguide/js/dist/index.html
 ```
-.
-├── python/               # Python package (mathphys)
-│   ├── src/mathphys/
-│   │   ├── double_pendulum.py
-│   │   └── numerics.py
-│   ├── tests/
-│   └── examples/double_pendulum_demo.py
-│
-├── cpp/                  # C++20 library + CMake
-│   ├── include/
-│   ├── src/
-│   ├── tests/
-│   └── examples/dp_sim.cpp
-│
-├── rust/                 # Rust crate (nalgebra)
-│   ├── src/
-│   │   ├── double_pendulum.rs
-│   │   ├── numerics.rs
-│   │   └── bin/dp_sim.rs
-│   └── Cargo.toml
-│
-├── julia/                # Julia package (MathPhys.jl)
-│   ├── src/
-│   ├── tests/
-│   └── examples/dp_sim.jl
-│
-├── js/                   # TypeScript browser app (Vite)
-│   ├── src/
-│   │   ├── double_pendulum.ts
-│   │   └── main.ts
-│   ├── index.html
-│   └── dist/             # pre-built — open in any browser
-│
-└── pyproject.toml        # Python project metadata
-```
+
+**Double pendulum panels:** Pendulum · Phase portrait · Trajectory · Energy vs time
+
+**Ising model controls:** Temperature slider · Low T / Critical / High T presets ·
+Play/Pause/Reset · Sweeps-per-frame speed
+
+**EM Cavity & Waveguide Visualizer:**
+- Switch between Rectangular Cavity, Rectangular Waveguide, Circular Waveguide
+- Select mode type (TE/TM) and indices (m, n, p) via sliders
+- Presets: TE₁₀₁ cavity · TM₁₁₀ cavity · TE₁₀ waveguide · TE₁₁ circular
+- Live E-field heatmap + arrow vectors, real-time phase animation (ωt)
+- Dispersion chart (ω vs β) with operating frequency marker
 
 ---
 
 ## Setup & Usage
 
-### Python
-
-**Requirements:** Python 3.11+, pip
+### Python (shared package)
 
 ```bash
-pip install -e .                          # install the mathphys package
+pip install -e ".[dev]"                 # installs mathphys from src/
 
-python python/examples/double_pendulum_demo.py   # saves double_pendulum.png
-pytest python/tests/                      # run tests
-pytest --cov=mathphys python/tests/       # with coverage
+# Double pendulum
+python classical_mechanics/double_pendulum/python/examples/double_pendulum_demo.py
+python -m pytest classical_mechanics/double_pendulum/python/tests/
+
+# 2D Ising Model
+python statistical_physics/ising_model_2d/python/examples/ising_demo.py
+python -m pytest statistical_physics/ising_model_2d/python/tests/
+
+# All tests at once
+python -m pytest
 ```
-
-The demo uses SciPy's `solve_ivp` with the DOP853 adaptive integrator
-(rtol=1e-9, atol=1e-11), then plots θ₁/θ₂, ω₁/ω₂, phase portraits and
-energy drift on a single figure.
 
 ---
 
-### C++
-
-**Requirements:** CMake ≥ 3.20, a C++20-capable compiler (GCC 12+ / Clang 15+)
+### C++ — Double Pendulum
 
 ```bash
-mkdir -p cpp/build && cd cpp/build
+cd classical_mechanics/double_pendulum/cpp
+mkdir -p build && cd build
 cmake ..
 cmake --build .
-
 ctest --output-on-failure     # run tests
 ./dp_sim_exec                 # generate 8 CSV scenarios
 ```
 
-The example writes one CSV per scenario (`case_*.csv`, `sensitivity_*.csv`,
-`mass_ratio_*.csv`) with columns: `t, theta1, omega1, theta2, omega2, x2, y2, energy`.
+### C++ — 2D Ising Model
+
+```bash
+cd statistical_physics/ising_model_2d/cpp
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+ctest --output-on-failure     # run tests
+./ising_sim                   # temperature sweep → ising2d_sweep.csv
+```
 
 ---
 
-### Rust
-
-**Requirements:** Rust 1.75+ (stable), Cargo
+### Rust — Double Pendulum
 
 ```bash
-cd rust
-cargo test                         # unit tests (inline + integration)
-cargo run --bin dp_sim --release   # generate 8 CSV scenarios
+cd classical_mechanics/double_pendulum/rust
+cargo test
+cargo run --bin dp_sim --release
 ```
 
-The crate uses [nalgebra](https://nalgebra.org/) for vector types. The same
-8 CSV scenarios are produced as the C++ version.
+### Rust — 2D Ising Model
+
+```bash
+cd statistical_physics/ising_model_2d/rust
+cargo test
+cargo run --bin ising_sim --release
+```
 
 ---
 
-### Julia
-
-**Requirements:** Julia 1.10+
+### Julia — Double Pendulum
 
 ```bash
-# Run tests
-julia --project=julia julia/tests/runtests.jl
+julia --project=classical_mechanics/double_pendulum/julia \
+      classical_mechanics/double_pendulum/julia/tests/runtests.jl
 
-# Generate CSV scenarios
-julia --project=julia julia/examples/dp_sim.jl
+julia --project=classical_mechanics/double_pendulum/julia \
+      classical_mechanics/double_pendulum/julia/examples/dp_sim.jl
 ```
 
-Julia is not required for the rest of the project. If `julia` is not in `PATH`
-the session-start hook will skip it gracefully.
+### Julia — 2D Ising Model
+
+```bash
+julia --project=statistical_physics/ising_model_2d/julia \
+      statistical_physics/ising_model_2d/julia/tests/runtests.jl
+
+julia --project=statistical_physics/ising_model_2d/julia \
+      statistical_physics/ising_model_2d/julia/examples/ising_sim.jl
+```
+
+---
+
+### Python — EM Cavity & Waveguide
+
+```bash
+# Run visualisations (generates PNG files)
+python electromagnetics/cavity_waveguide/python/examples/cavity_demo.py
+python electromagnetics/cavity_waveguide/python/examples/waveguide_demo.py
+
+# Tests
+python -m pytest electromagnetics/cavity_waveguide/python/tests/
+```
+
+---
+
+### C++ — EM Cavity & Waveguide
+
+```bash
+cd electromagnetics/cavity_waveguide/cpp
+mkdir -p build && cd build
+cmake ..
+cmake --build .
+ctest --output-on-failure     # 28 tests
+./em_sim                      # print resonant frequencies + β tables
+```
+
+---
+
+### Rust — EM Cavity & Waveguide
+
+```bash
+cd electromagnetics/cavity_waveguide/rust
+cargo test                    # 29 tests
+cargo run --bin em_sim        # print resonant frequencies + dispersion
+```
+
+---
+
+### Julia — EM Cavity & Waveguide
+
+```bash
+julia --project=electromagnetics/cavity_waveguide/julia \
+      electromagnetics/cavity_waveguide/julia/tests/runtests.jl
+
+julia --project=electromagnetics/cavity_waveguide/julia \
+      electromagnetics/cavity_waveguide/julia/examples/em_sim.jl
+```
 
 ---
 
 ### JavaScript / TypeScript
 
-**Requirements:** Node.js 18+ (only for the dev server — the `dist/` bundle
-needs no build step)
-
 ```bash
-cd js
-npm install          # first time only
-npm run dev          # development server with HMR → localhost:5173
-npm run build        # rebuild dist/
-npm run preview      # serve the production build locally
-```
+# Double pendulum dev server
+cd classical_mechanics/double_pendulum/js
+npm install && npm run dev          # → http://localhost:5173
 
-TypeScript is compiled by Vite (transpile-only); run `npx tsc --noEmit` for
-full type checking.
+# Ising model dev server
+cd statistical_physics/ising_model_2d/js
+npm install && npm run dev          # → http://localhost:5173
+
+# EM Cavity & Waveguide visualizer dev server
+cd electromagnetics/cavity_waveguide/js
+npm install && npm run dev          # → http://localhost:5173
+```
 
 ---
 
 ## Tests
 
-| Language | Framework | Command |
-|---|---|---|
-| Python | pytest | `pytest python/tests/` |
-| C++ | CTest | `ctest` (inside `cpp/build/`) |
-| Rust | built-in + approx | `cargo test` (inside `rust/`) |
-| Julia | @testset | `julia --project=julia julia/tests/runtests.jl` |
-
-All numerics tests cover `integrate_trapezoid` and `finite_difference`
-with known analytic solutions (constant, linear, quadratic, sinusoidal).
+| Language | Double Pendulum | Ising Model | EM Cavity & Waveguide |
+|---|---|---|---|
+| Python | `pytest classical_mechanics/.../tests/` | `pytest statistical_physics/.../tests/` | `pytest electromagnetics/.../tests/` |
+| C++ | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` (28 tests) |
+| Rust | `cargo test` | `cargo test` | `cargo test` (29 tests) |
+| Julia | `julia ... runtests.jl` | `julia ... runtests.jl` | `julia ... runtests.jl` |
 
 ---
 
-## Energy conservation
+## Energy / accuracy metrics
 
-A correctly implemented RK4 integrator with dt = 1 ms keeps relative energy
-drift $|\Delta E / E_0|$ below 10⁻⁶ for the 30-second chaotic scenario. The
-Python adaptive solver maintains drift below 10⁻⁸.
+**Double pendulum:** A correctly implemented RK4 integrator with dt = 1 ms keeps
+relative energy drift $|\Delta E / E_0| < 10^{-6}$ for the 30-second chaotic scenario.
+The Python adaptive solver maintains drift $< 10^{-8}$.
 
-The browser app displays the live drift percentage next to the simulation
-clock so you can verify conservation interactively.
+**Ising model:** Energy conservation is exact in the MC framework (Metropolis
+satisfies detailed balance). Finite-size effects shift the apparent $T_c$ from the
+Onsager value; the peak in $C_v$ sharpens as $N \to \infty$.

@@ -1,0 +1,221 @@
+/* EM Cavity & Waveguide Visualizer — Stylesheet */
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --text-muted: #8b949e;
+  --accent: #4fc3f7;
+  --accent2: #80cbc4;
+  --btn-bg: #21262d;
+  --btn-hover: #30363d;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+header {
+  padding: 16px 24px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+header h1 {
+  font-size: 1.2rem;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+header p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+main {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: auto auto;
+  gap: 0;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.controls {
+  grid-row: 1 / 2;
+  padding: 16px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-group label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.control-group select,
+.control-group input[type=range] {
+  width: 100%;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+button {
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+button:hover { background: var(--btn-hover); }
+
+.mode-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.canvas-area {
+  grid-row: 1 / 2;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.canvas-area > div {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+canvas {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: block;
+}
+
+#fieldCanvas {
+  width: 400px;
+  height: 400px;
+}
+
+#dispCanvas {
+  width: 400px;
+  height: 250px;
+}
+
+.info-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  min-width: 200px;
+  max-width: 280px;
+  flex: 1;
+}
+
+.info-box b { color: var(--accent); }
+.info-box sub { font-size: 0.7em; }
+
+.legend {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  line-height: 2;
+  min-width: 200px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatch {
+  width: 20px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.swatch-hot {
+  background: linear-gradient(to right, #fff 0%, #f44 50%, #600 100%);
+}
+
+.swatch-arrow { height: 2px; }
+
+.physics-notes {
+  grid-column: 1 / 3;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.physics-notes h2 {
+  font-size: 1rem;
+  color: var(--accent2);
+  margin-bottom: 10px;
+}
+
+.physics-notes dl {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 8px 16px;
+}
+
+.physics-notes dt {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.physics-notes dd {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 700px) {
+  main { grid-template-columns: 1fr; }
+  .controls { border-right: none; border-bottom: 1px solid var(--border); }
+  .canvas-area > div { flex-direction: column; }
+  #fieldCanvas { width: 100%; height: auto; }
+}

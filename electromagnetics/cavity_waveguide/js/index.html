@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EM Cavity & Waveguide Visualizer</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <header>
+    <h1>🔬 電磁気キャビティ・導波管 可視化ツール</h1>
+    <p>Electromagnetic Cavity &amp; Waveguide Field Visualizer — Interactive Mode Explorer</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <!-- View selection -->
+      <div class="control-group">
+        <label>表示モード</label>
+        <select id="viewMode">
+          <option value="rect-cavity">直方体キャビティ (Rectangular Cavity)</option>
+          <option value="rect-wg">直方体導波管 (Rectangular Waveguide)</option>
+          <option value="circ-wg">円形導波管 (Circular Waveguide)</option>
+        </select>
+      </div>
+
+      <!-- Presets -->
+      <div class="control-group">
+        <label>プリセット</label>
+        <div class="btn-row">
+          <button data-preset="te101">TE₁₀₁ Cavity</button>
+          <button data-preset="tm110">TM₁₁₀ Cavity</button>
+          <button data-preset="te10">TE₁₀ WG</button>
+          <button data-preset="te11c">TE₁₁ Circ</button>
+        </div>
+      </div>
+
+      <!-- Mode type -->
+      <div class="control-group">
+        <button id="modeTypeBtn" class="mode-btn">Mode: TE</button>
+      </div>
+
+      <!-- m, n indices -->
+      <div class="control-group">
+        <label>m = <span id="mVal">1</span></label>
+        <input type="range" id="mSlider" min="0" max="4" value="1" />
+      </div>
+      <div class="control-group">
+        <label>n = <span id="nVal">0</span></label>
+        <input type="range" id="nSlider" min="0" max="4" value="0" />
+      </div>
+
+      <!-- p index (cavity only) -->
+      <div id="pPanel" class="control-group">
+        <label>p = <span id="pVal">1</span></label>
+        <input type="range" id="pSlider" min="0" max="4" value="1" />
+      </div>
+
+      <!-- Frequency multiplier (waveguide only) -->
+      <div id="freqPanel" class="control-group" style="display:none">
+        <label>f / fc = <span id="freqVal">1.5×fc</span></label>
+        <input type="range" id="freqSlider" min="1.01" max="3.0" step="0.01" value="1.5" />
+      </div>
+
+      <!-- Animation -->
+      <div class="control-group">
+        <label>速度 (speed)</label>
+        <input type="range" id="speedSlider" min="0.01" max="0.3" step="0.01" value="0.08" />
+      </div>
+      <div class="control-group">
+        <button id="playBtn">⏸ Pause</button>
+      </div>
+    </div>
+
+    <div class="canvas-area">
+      <div>
+        <canvas id="fieldCanvas"></canvas>
+        <div id="info" class="info-box"></div>
+      </div>
+      <div>
+        <canvas id="dispCanvas" style="display:none"></canvas>
+        <div class="legend">
+          <div class="legend-row"><span class="swatch swatch-hot"></span> |E| magnitude (hot: warm=high, cool=zero)</div>
+          <div class="legend-row"><span class="swatch swatch-arrow" style="background:#ff0"></span> → E-field direction arrows</div>
+          <div class="legend-row"><span class="swatch" style="background:#4fc3f7"></span> — β dispersion curve</div>
+          <div class="legend-row"><span class="swatch" style="background:#ff9800"></span> — cutoff frequency f<sub>c</sub></div>
+          <div class="legend-row"><span class="swatch" style="background:#f44"></span> ● operating point (f, β)</div>
+        </div>
+      </div>
+    </div>
+
+    <section class="physics-notes">
+      <h2>物理的な背景 (Physics Notes)</h2>
+      <dl>
+        <dt>共振キャビティ (Resonant Cavity)</dt>
+        <dd>PEC 壁で囲まれた空洞内で EM 波が定常波を形成。<br>
+            E(r,t) = E₀(r)·<b>cos(ωt)</b>，H(r,t) = H₀(r)·<b>sin(ωt)</b>
+            → E と H が 90° 位相ずれ，エネルギーが電場↔磁場間で振動。</dd>
+        <dt>導波管 (Waveguide)</dt>
+        <dd>PEC 管内を +z 方向へ電磁波が伝搬。<br>
+            カットオフ周波数 f<sub>c</sub> 以下では伝搬不可 (エバネッセント)。<br>
+            伝搬定数 β = √((ω/c)² − k<sub>c</sub>²)，群速度 v<sub>g</sub> = c²β/ω &lt; c。</dd>
+        <dt>分散関係 (Dispersion Relation)</dt>
+        <dd>ω² = (βc)² + (k<sub>c</sub>c)² — 双曲線型。光の分散 ω=βc (点線) と比較。
+            fc 以上で双曲線が光線に漸近。赤点: 操作周波数における (f, β)。</dd>
+      </dl>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

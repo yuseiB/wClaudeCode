@@ -1,0 +1,15 @@
+[package]
+name        = "em_cavity_waveguide"
+version     = "0.1.0"
+edition     = "2021"
+description = "Electromagnetic cavity and waveguide analytical solutions"
+
+[dependencies]
+
+[[bin]]
+name = "em_sim"
+path = "src/bin/em_sim.rs"
+
+[lib]
+name = "em_cavity_waveguide"
+path = "src/lib.rs"
