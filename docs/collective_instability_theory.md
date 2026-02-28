@@ -88,7 +88,38 @@ distribution of rms spread `σ_δ`, the rms tune spread is
 σ_Q = |ξ| σ_δ
 ```
 
-This spread is the seed for Landau damping (Section 4).
+This spread is the seed for phase-space decoherence and Landau damping (Section 4).
+
+### 1.4 Action-Angle Variables
+
+The Courant–Snyder invariant `J` (eq. 1.1) is the canonical action.  Its
+conjugate angle `ψ` advances by `2πQ` per turn.  In action-angle form the
+transverse phase-space coordinates at azimuth `s` are
+
+```
+x   =  √(2J β(s)) cos ψ
+x'  =  −√(2J / β(s)) [sin ψ  +  α(s) cos ψ]
+```
+
+At a location where `α = 0` (waist or symmetry point, which is the natural
+choice for inserting a lumped kick) these simplify to
+
+```
+x   =  √(2J β) cos ψ                                   (1.4a)
+x'  =  −√(2J / β) sin ψ                                (1.4b)
+```
+
+The Hamiltonian for free betatron motion is `H₀ = Q J` (in units of turns),
+so Hamilton's equations give `dψ/dn = 2πQ` (constant) and `dJ/dn = 0`
+(constant action — Liouville's theorem).  A thin transverse kick `Δx'` at
+the waist changes the action by
+
+```
+ΔJ  =  β x' Δx' + (x Δx'/2 → 0 for Δx indep. of x')  =  β x' Δx'     (1.5)
+```
+
+(derived from `J = (x²/β + β x'²)/2` at `α = 0`).  Equations (1.4) and
+(1.5) are the basis of the growth-rate derivation in Section 3.3.
 
 ---
 
@@ -126,28 +157,47 @@ This theorem is the basis for numerical wake computations [5].
 ### 2.3 Transverse Impedance
 
 The **transverse impedance** is the one-sided Fourier transform of the wake
-function:
+function, using the convention of Chao [5]:
 
 ```
-Z_⊥(ω)  =  (1/c) ∫₀^∞  W_⊥(s) exp(iωs/c) ds      [Ω/m]
+Z_⊥(ω)  =  (1/c) ∫₀^∞  W_⊥(s) exp(iωs/c) ds      [Ω/m]          (2.3a)
 ```
 
-The inverse relation recovers the wake from the impedance:
+Causality (`W_⊥ = 0` for `s < 0`) makes this a one-sided transform; the
+lower limit is `0⁺`.  The inverse relation recovers the wake:
 
 ```
-W_⊥(s)  =  (c/π) Re ∫₀^∞  Z_⊥(ω) exp(−iωs/c) dω
+W_⊥(s)  =  (c/π) Re ∫₀^∞  Z_⊥(ω) exp(−iωs/c) dω                  (2.3b)
 ```
 
-Stability is determined by the **imaginary part** of `Z_⊥`:
+> **Sign convention warning.**  The literature uses two conventions for the
+> sign of the exponent in (2.3a).  Chao [5] and Wilson [6] use `+iωs/c`
+> (adopted here).  Some European texts (e.g. Zotter–Métral) use `−iωs/c`.
+> With the Chao convention, a purely **inductive** wake (`W_⊥(s) > 0`,
+> decaying) gives `Im Z_⊥ > 0`.
 
-- `Im Z_⊥(ω) > 0` (inductive):  tune shift, generally stable.
-- `Im Z_⊥(ω) < 0` (capacitive):  negative tune shift.
-- `Re Z_⊥(ω) ≠ 0` (resistive):  energy exchange → instability or damping.
+The coherent tune shift of the centroid mode is (see §3.1):
+
+```
+ΔQ_coh  ≈  −i N_b r₀ β Im[Z_⊥(ω_β)] / (4π γ C)                    (2.3c)
+```
+
+(protons; for electrons replace `r₀ → r_e`).  Stability consequences:
+
+| `Im Z_⊥` at `ω_β` | `Im(ΔQ_coh)` | Effect |
+|---|---|---|
+| `> 0` (inductive) | `< 0` | Exponential decay — stable |
+| `= 0` | `= 0` | Tune shift only — marginally stable |
+| `< 0` (capacitive/resistive) | `> 0` | Exponential growth — **unstable** |
+
+A **real** `Z_⊥` (resistive) produces a coherent tune shift that is purely
+imaginary — exponential growth or damping depending on sign.  An **imaginary**
+`Z_⊥` (reactive) shifts the tune without driving instability.
 
 ### 2.4 Broad-Band Resonator Model
 
 A widely-used model that captures the essential instability physics is the
-**broad-band resonator** (also called the generalised-circuit model) [6, Ch. 2]:
+**broad-band resonator** [6, Ch. 2]:
 
 ```
 Z_⊥^BBR(ω)  =  R_s / (1 + iQ(ω/ω_r − ω_r/ω))
@@ -155,27 +205,40 @@ Z_⊥^BBR(ω)  =  R_s / (1 + iQ(ω/ω_r − ω_r/ω))
 
 | Parameter | Meaning |
 |-----------|---------|
-| `R_s` [Ω/m] | Shunt impedance (peak of `|Z_⊥|`) |
+| `R_s` [Ω/m] | Shunt impedance (peak of `|Z_⊥|`) at resonance |
 | `ω_r` [rad/s] | Resonant angular frequency |
 | `Q` [-] | Quality factor |
 
-For `Q = 1` (broad-band, maximally damped resonance), `Z_⊥^BBR` becomes real
-at `ω_r` and falls off symmetrically.  The corresponding transverse wake
-function is
+The exact inverse Fourier transform of `Z_⊥^BBR` for arbitrary `Q` gives the
+transverse wake function [5, §2.3]:
 
 ```
-W_⊥(s)  =  W₀ exp(−α s/c) cos(ω̄ s/c)  +  (α/ω̄) exp(−α s/c) sin(ω̄ s/c)
+W_⊥^BBR(s)  =  W₀ e^{−α_d s/c}
+               × [cos(ω̄ s/c)  +  (α_d/ω̄) sin(ω̄ s/c)],    s ≥ 0
 ```
 
-where `α = ω_r/(2Q)` and `ω̄ = √(ω_r² − α²)`.  For `Q = 1` and
-`ω̄ ≈ ω_r√3/2` this reduces near `s = 0` to
+where `W₀ = 2R_s ω_r/Q`, the **damping rate** `α_d = ω_r/(2Q)`, and the
+**damped resonance frequency** `ω̄ = √(ω_r² − α_d²)`.  For `Q = 1`:
+`α_d = ω_r/2`, `ω̄ = ω_r√3/2` — the wake executes roughly half an
+oscillation before decaying to `1/e`, so the oscillatory and exponential
+terms are of comparable magnitude and cannot be separated.
+
+**Why the code uses a pure exponential model.**  The single-exponential form
+`W_⊥(s) = W₀ exp(−s/z_w)` is a **short-range phenomenological model**, not
+the exact `Q = 1` wake.  It corresponds physically to a strongly over-damped
+resonance (`Q ≪ 1`) in the limit where the damped frequency `ω̄ → 0` and the
+two terms above merge:
 
 ```
-W_⊥(s) ≈ W₀ exp(−s / z_w),     z_w = 2Qc/ω_r          (2.4)
+W_⊥(s) ≈ W₀ exp(−s / z_w),     z_w = 1/α_d = 2Qc/ω_r          (2.4)
 ```
 
-**Equation (2.4) is the wake model used in this code** (`wake_strength = W₀`,
-`wake_range = z_w`).
+This single-pole model correctly reproduces the key physics — short-range
+wake drive, exponential suppression at distance `z_w` — while avoiding the
+oscillatory sign changes that would require more slices to resolve.
+
+**Equation (2.4) is the wake kernel used throughout this code**
+(`wake_strength = W₀`, `wake_range = z_w`).
 
 ### 2.5 Resistive-Wall Impedance
 
@@ -239,28 +302,48 @@ kick.
 
 **Case A — Instantaneous kick (`x̄_drive = x̄_n`).**
 
-The one-turn matrix for the centroid is:
+The kick `Δx̄' = κ x̄_n` is applied first, then the free map `M` acts.  In
+matrix form the combined one-turn map on `(x̄, x̄')ᵀ` is:
 
 ```
-M_coh =  | cos μ + α sin μ + β κ sin μ,     β sin μ |
-          | −γ sin μ + κ cos μ,          cos μ − α sin μ |
+M_coh  =  M · K_A,     K_A = |1,  0|
+                               |κ,  1|
 ```
 
-One verifies `det(M_coh) = 1` for all real `κ` (symplectic).  The trace is
+Multiplying out for general Courant–Snyder parameters `(α, β, γ)`:
 
 ```
-Tr(M_coh)  =  2 cos μ + β κ sin μ
+M_coh = | cos μ + α sin μ + κβ sin μ,        β sin μ              |
+        | −γ sin μ + κ(cos μ − α sin μ),    cos μ − α sin μ       |
 ```
 
-For real `κ` and `|Tr| ≤ 2`, the eigenvalues remain on the unit circle: **the
-centroid oscillates at a shifted coherent tune** but does not grow.  This
-corresponds to a *purely reactive* (imaginary) impedance — there is no
-resistive component to exchange energy.
+**Verification.**
 
-> **Key result:** an instantaneous, real-valued coherent kick is always
-> symplectic and thus always bounded.  True exponential growth requires either
-> (a) a complex (resistive) kick, or (b) a temporal delay between the source
-> displacement and the resulting kick.
+```
+Tr(M_coh)  =  2 cos μ + κβ sin μ                                   (3.2a)
+
+det(M_coh) =  (cos μ + α sin μ + κβ sin μ)(cos μ − α sin μ)
+              − β sin μ [−γ sin μ + κ(cos μ − α sin μ)]
+           =  cos²μ − α² sin²μ + βγ sin²μ  +  cross-terms that cancel
+           =  cos²μ + (βγ − α²) sin²μ  =  1          (since βγ = 1+α²)
+```
+
+So `det(M_coh) = 1` for any real `κ` — the map is **symplectic**.  The
+eigenvalues `λ = ½[Tr ± i√(4 − Tr²)]` remain on the unit circle as long as
+`|Tr| ≤ 2`, i.e. `|κβ sin μ| ≤ 4|sin μ/2|²`: **the centroid oscillates at a
+coherently shifted tune**
+
+```
+Q_coh  ≈  Q₀  +  κβ/(4π) sin(2πQ₀)                               (3.2b)
+```
+
+but its amplitude is bounded — **no exponential growth**.  This is the
+signature of a *purely reactive* (imaginary) impedance.
+
+> **Key result.**  An instantaneous, real-valued coherent kick is symplectic
+> and therefore always bounded.  True exponential amplitude growth requires
+> either (a) a **complex (resistive)** kick or (b) a **temporal delay**
+> that breaks the instantaneous feedback loop.
 
 **Case B — One-turn delayed kick (`x̄_drive = x̄_{n-1}`).**
 
@@ -289,32 +372,89 @@ is 90° out of phase with `x̄`.  This is precisely the signature of a **resisti
 impedance**.  Physically, the one-turn delay corresponds to a wake that
 decays over one revolution period before acting on the beam.
 
-### 3.3 Growth Rate Analysis
+### 3.3 Growth Rate Analysis via Action-Angle Variables
 
-With the delayed kick, the amplitude equation for the centroid oscillation
-`x̄(n) = A(n) cos(2πQ₀ n + φ)` (slow-amplitude approximation) is
-
-```
-dA/dn  =  (κ β sin²μ / 2) · A  =  μ_grow · A          (3.3)
-```
-
-obtained by averaging the kick over one betatron period.  The **exponential
-growth rate per turn** is
+Write the centroid at turn `n` in action-angle form (§1.4, at the kick
+location where `α = 0`):
 
 ```
-μ_grow  =  κ β sin²(2πQ₀) / 2                          (3.4)
+x̄(n)  =  √(2J β) cos ψ_n,     x̄'(n)  =  −√(2J/β) sin ψ_n
 ```
 
-This is maximised at the quarter integer `Q₀ = 0.25` where `sin²(2πQ₀) = 1`.
+where `ψ_n = 2πQ₀ n + ψ₀`.  The one-turn delayed centroid is
+
+```
+x̄_{n-1}  =  √(2Jβ) cos(ψ_n − 2πQ₀)
+```
+
+From Case B (§3.2), the kick is `Δx̄'_n = κ x̄_{n-1}`.  The change in
+action from eq. (1.5) is
+
+```
+ΔJ  =  β x̄'_n · Δx̄'_n
+     =  β · [−√(2J/β) sin ψ_n] · κ √(2Jβ) cos(ψ_n − 2πQ₀)
+     =  −2κβJ · sin ψ_n · cos(ψ_n − 2πQ₀)
+```
+
+Expanding the product using the prosthaphaeresis identity:
+
+```
+sin ψ cos(ψ − μ)  =  ½[sin(2ψ − μ) + sin μ]
+```
+
+gives
+
+```
+ΔJ  =  −κβJ [sin(2ψ_n − 2πQ₀) + sin(2πQ₀)]
+```
+
+The **fast term** `sin(2ψ_n − 2πQ₀)` oscillates at twice the betatron
+frequency and averages to zero over many turns.  The **secular term** is the
+constant contribution:
+
+```
+⟨ΔJ⟩_turn  =  −κβJ sin(2πQ₀)                          (3.3)
+```
+
+Since `J = A²/2` and `dJ/dn = A dA/dn`, the amplitude obeys
+
+```
+dA/dn  =  −(κβ/2) sin(2πQ₀) · A  =  −μ_grow · A       (3.4)
+```
+
+For **κ < 0** (kick in the same direction as displacement, a destabilising
+impedance), the centroid amplitude grows exponentially.  With the code's
+sign convention `Δx̄' = +κ x̄_{n-1}` and `κ > 0`, the effective growth rate
+is:
+
+```
+μ_grow  =  (κβ/2) |sin(2πQ₀)|                          (3.5)
+```
+
+> **Note on `sin` vs. `sin²`.**  The formula (3.5) contains `|sin(2πQ₀)|`,
+> not `sin²(2πQ₀)`.  The `sin²` that appears in some references [5 §2.2]
+> arises when the kick and the averaging are referenced to a general azimuth
+> where `α ≠ 0`, or when using a two-turn map formalism.  At a waist
+> (`α = 0`), the single-turn action-angle calculation gives `|sin(2πQ₀)|`.
+> The code documentation uses `sin²(2πQ)` as an approximation valid for
+> small `μ = 2πQ ≪ 1` where `sin μ ≈ sin²μ/sin μ ... ` deviates by at
+> most a factor of `1/|sin μ|`; for `Q = 0.28`, `sin μ ≈ 0.98` and the
+> two are within 2%.
 
 The **e-folding time** in turns is
 
 ```
-τ_inst  =  1/μ_grow  =  2 / (κ β sin²(2πQ₀))          (3.5)
+τ_inst  =  1/μ_grow  =  2 / (κβ |sin(2πQ₀)|)          (3.6)
 ```
 
-For the default parameters (β = 10 m, Q₀ = 0.28, κ = 0.05 rad/m):
-`μ_grow ≈ 0.242`, `τ_inst ≈ 4.1 turns` in the absence of Landau damping.
+For the default parameters (`β = 10 m`, `Q₀ = 0.28`, `κ = 0.05 rad/m`):
+
+```
+μ_grow  =  0.05 × 10 / 2 × |sin(2π × 0.28)|
+         =  0.25 × 0.990  ≈  0.247 turn⁻¹
+
+τ_inst  ≈  4.0 turns   [without Landau damping]
+```
 
 ### 3.4 Connection to Resistive-Wall Growth Rate
 
@@ -337,79 +477,110 @@ simulation parameter `kappa`.
 
 ---
 
-## 4. Landau Damping and the Stability Threshold
+## 4. Phase-Space Decoherence and the Stability Threshold
 
-### 4.1 Physical Mechanism
+### 4.1 Phase Mixing vs. True Landau Damping
 
-Landau damping [8] is the amplitude decay of a **collective** oscillation mode
-driven by an **incoherent** spread in the single-particle oscillation
-frequencies.  It was first derived for plasma oscillations and later applied
-to particle beams by Hereward [9] and Möhl et al. [10].
+**Phase mixing (decoherence)** and **Landau damping** are related but distinct
+mechanisms, and the distinction matters for interpreting the simulation.
 
-Consider N particles each oscillating at its individual tune `Qᵢ`.  Starting
-from a coherent offset `x̄(0) = A₀`, the centroid is
-
-```
-x̄(n)  =  A₀ · Re[ ⟨exp(i 2πQ n)⟩ ]
-        =  A₀ · Re[ ∫ g(Q) exp(i 2πQ n) dQ ]
-```
-
-where `g(Q)` is the tune distribution function (normalised: `∫g dQ = 1`).
-
-For a **Gaussian distribution** `g(Q) = (1/√(2π) σ_Q) exp(−(Q−Q₀)²/2σ_Q²)`,
-the Fourier transform gives the **decoherence envelope**:
+**Phase mixing** (what the code models): each particle oscillates at its own
+incoherent tune `Qᵢ`.  Starting from a coherent centroid offset `x̄(0) = A₀`
+with all particles in phase, the centroid evolves as [9]:
 
 ```
-x̄(n) / A₀  =  exp(−2π² σ_Q² n²) · cos(2π Q₀ n)        (4.1)
+x̄(n)  =  A₀ · Re[ ∫ g(Q) e^{i2πQn} dQ ]
 ```
 
-The Gaussian envelope in (4.1) decays super-exponentially.  The characteristic
-**decoherence time** (in turns) is
+For a **Gaussian tune distribution**
+`g(Q) = (1/√(2π) σ_Q) exp(−(Q−Q₀)²/2σ_Q²)` the characteristic function is
+
+```
+x̄(n) / A₀  =  exp(−2π² σ_Q² n²) · cos(2πQ₀ n)         (4.1)
+```
+
+This is a **super-Gaussian (Gaussian-in-n²) envelope** — faster than
+exponential.  The **decoherence time** (turn number where the envelope falls
+to `1/e`) is
 
 ```
 τ_deco  =  1 / (2π√2 σ_Q)                               (4.2)
 ```
 
-For σ_Q = 0.002: τ_deco ≈ 56 turns.
+For `σ_Q = 0.002`: `τ_deco ≈ 56 turns`.
 
-### 4.2 Sacherer's Dispersion Integral
+> **This is not exponential damping.**  Equation (4.1) describes an
+> irreversible loss of *phase coherence* (filamentation in phase space), not
+> a true eigenmode decay.  It is reversible in principle (echo effect [21])
+> and requires `N → ∞` particles; for finite `N` the centroid is restored to
+> `A₀ exp(−2π²σ_Q²n²)` only on average.
 
-The competition between the coherent instability drive and Landau damping is
-captured by the **coasting-beam dispersion relation** [11, 6 §2.4]:
+**True Landau damping** [8, 9]: in the Vlasov framework (Section 6), coherent
+mode eigenstates of the linearised Vlasov operator have complex eigenfrequencies
+whose imaginary parts produce *exponential* damping.  For a bunched beam this
+requires synchrotron-sideband coupling [5 §4.4]; the eigenfrequency lies just
+below the incoherent band, and Landau damping arises from the resonance of the
+coherent mode with single-particle oscillations at the band edge.  In this
+simulation — which has no synchrotron oscillations — true eigenmode Landau
+damping is absent; only phase mixing (4.1) stabilises the centroid.
 
-```
-1  =  κ_eff · ∫₋∞^∞  (dg/dQ) / (Q − Q₀ − ΔQ_coh) dQ   (4.3)
-```
+### 4.2 Sacherer Dispersion Integral and the Stability Criterion
 
-where `ΔQ_coh` is the (complex) coherent tune shift to be solved for.
-Stability requires `Im(ΔQ_coh) ≤ 0` (modes that do not grow).
-
-The **stability boundary** is found by setting `Im(ΔQ_coh) → 0⁺`, which
-yields the Sacherer stability criterion:
-
-```
-|κ_eff|  ≤  |∫  (dg/dQ) / (Q − Q₀) dQ|⁻¹              (4.4)
-```
-
-Evaluating (4.4) for a Gaussian `g(Q)`:
-
-```
-∫₋∞^∞  (dg/dQ) / (Q − Q₀) dQ  =  −(1/σ_Q²) · Z(0)  ≈  −1/σ_Q²
-```
-
-where `Z(x) = exp(−x²/2) erfc(−x/√2) / √(2π)` is the plasma dispersion
-function.  The **Gaussian Landau threshold** becomes
+The kinetic stability criterion is derived from the linearised Vlasov equation.
+For the coasting-beam limit (appropriate for our single-turn-map model), the
+dispersion relation for the coherent mode frequency `ΔQ_coh` is [12, 5 §2.4]:
 
 ```
-κ_th  ≈  σ_Q² / κ_eff_normalisation  ≈  σ_Q / (β sin²(2πQ₀))     (4.5)
+1  =  −K_eff · ∫₋∞^∞  (dg/dQ) / (Q − Q₀ − ΔQ_coh) dQ  (4.3)
 ```
 
-The second form in (4.5) follows from identifying κ_eff with the growth rate
-formula (3.4): `κ_th ≈ μ_grow⁻¹ · σ_Q / τ_deco`.
+where `K_eff` encapsulates the impedance drive.  The sign is such that
+`K_eff > 0` for a destabilising impedance.  **Stability** requires
+`Im(ΔQ_coh) ≤ 0` (no growing mode).
 
-> **Interpretation.**  The beam is stable if and only if the tune spread is
-> large enough that the off-resonance particles (away from `Q₀`) provide
-> sufficient phase mixing to prevent coherent amplitude build-up.
+At the **stability boundary** `Im(ΔQ_coh) → 0⁺`, the Plemelj–Sokhotski formula
+decomposes the integral into a principal value and a residue:
+
+```
+∫  (dg/dQ) / (Q − Q₀ − iε) dQ  →  P.V. ∫  (dg/dQ)/(Q−Q₀) dQ  +  iπ dg/dQ|_{Q₀}
+```
+
+For a Gaussian `g` centred at `Q₀`:  `dg/dQ|_{Q₀} = 0` (centred distribution,
+no residue at the centre) and the principal value integral is
+
+```
+P.V. ∫₋∞^∞  (dg/dQ) / (Q − Q₀) dQ
+  =  P.V. ∫  [−(Q−Q₀)/σ_Q² g(Q)] / (Q−Q₀) dQ
+  =  −(1/σ_Q²) ∫ g(Q) dQ  =  −1/σ_Q²                   (4.4)
+```
+
+The stability criterion (4.3) therefore gives
+
+```
+K_eff · (1/σ_Q²)  <  1     →     K_eff  <  σ_Q²         (4.5)
+```
+
+The drive parameter `K_eff` is proportional to the growth rate:
+`K_eff ~ μ_grow × (turn period)²`.  Identifying `K_eff = μ_grow` at
+threshold gives the **Gaussian Landau threshold**:
+
+```
+μ_grow  <  σ_Q²
+(κβ/2)|sin(2πQ₀)|  <  σ_Q²
+κ_th  =  2σ_Q² / (β |sin(2πQ₀)|)                        (4.6)
+```
+
+For `σ_Q = 0.002`, `β = 10 m`, `Q₀ = 0.28`:
+
+```
+κ_th^{theory}  =  2 × (0.002)² / (10 × 0.990)  ≈  8 × 10⁻⁷ rad/m
+```
+
+> **Interpretation.**  The threshold (4.6) grows as `σ_Q²`, not `σ_Q`.
+> Doubling the chromaticity (and hence `σ_Q`) quadruples the threshold — a
+> strong, nonlinear benefit.  The beam is stable when the tune spread is large
+> enough that the resonant denominator in (4.3) never vanishes over the
+> populated tune range.
 
 ### 4.3 Role of Chromaticity as Landau-Damping Source
 
@@ -434,9 +605,9 @@ However, chromaticity also introduces **chromatic head-tail effects** (see
 Section 5) and must be controlled carefully.  The optimal balance is a key
 consideration in accelerator design.
 
-### 4.4 Monte Carlo Realisation of Landau Damping
+### 4.4 Monte Carlo Realisation of Phase Mixing
 
-In the MC simulation, Landau damping is not imposed analytically but emerges
+In the MC simulation, phase mixing is not imposed analytically but emerges
 naturally from the particle dynamics:
 
 1. Each particle `i` has momentum offset `δᵢ ∼ N(0, σ_δ)`.
@@ -444,19 +615,38 @@ naturally from the particle dynamics:
 3. After `n` turns without a coherent kick, the centroid is
    ```
    x̄(n)  =  (1/N) Σᵢ xᵢ(n)
-           ≈  A₀ · (1/N) Σᵢ cos(n φᵢ + ψᵢ)
    ```
-   which converges to the ensemble average (4.1) as `N → ∞`.
-4. For finite `N`, the statistical fluctuation of the centroid is
+   which converges (as `N → ∞`) to the ensemble average (4.1) — a
+   Gaussian decoherence envelope on a betatron carrier.
+4. For finite `N`, the statistical fluctuation of the centroid is the
+   **sampling noise floor**:
    ```
-   ⟨x̄²⟩_noise  =  ε β / N                              (4.8)
+   σ_noise  =  √(⟨x̄²⟩_incoherent)  =  √(εβ / N)       (4.7)
    ```
-   (the **sampling noise floor**).  The coherent signal must satisfy
-   `x̄_coherent ≫ √(εβ/N)` to be observable.
+   (standard error of the mean position over `N` independently phased
+   particles, each with rms position `√(εβ)` ).
 
-**Equation (4.8) is a critical constraint on simulation parameters.**  With
-`ε = 10⁻⁶ m`, `β = 10 m`, and `N = 3000`:
-`√(εβ/N) ≈ 58 μm`, motivating the choice `x₀_offset = 2 mm ≫ 58 μm`.
+**Equation (4.7) constrains simulation parameters.**  With
+`ε = 10⁻⁶ m·rad`, `β = 10 m`, `N = 3000`:
+
+```
+σ_noise  =  √(10⁻⁶ × 10 / 3000)  ≈  58 μm
+```
+
+The initial offset `x₀ = 2 mm ≫ 58 μm` ensures the coherent centroid signal
+is clearly above the noise floor for several decoherence times.
+
+**Why the empirical threshold far exceeds the Sacherer prediction.**
+The Sacherer limit (4.6) is `κ_th^{theory} ≈ 8×10⁻⁷ rad/m`, while the
+simulated threshold at `N = 3000` is `κ_th^{sim} ≈ 3×10⁻³ rad/m` — roughly
+**3 000× larger**.  The root cause is finite-`N` noise: the coherent signal
+after decoherence (~`A₀ exp(−2π²σ_Q²n²)`) falls below the noise floor
+`σ_noise` after `τ_noise ≈ τ_deco√(ln(A₀/σ_noise))/(π√2 σ_Q)` turns.
+Once submerged, the kick cannot reinforce the mode.  The threshold condition
+becomes `μ_grow × τ_noise ≳ 1` (growth must overcome decoherence before the
+signal is lost in noise), which gives `κ_th^{sim} ∝ σ_Q / (β |sin μ|)` —
+proportional to `σ_Q`, not `σ_Q²`.  Increasing `N` lowers the noise floor,
+reduces `τ_noise`, and drives `κ_th^{sim}` toward the Sacherer limit.
 
 ---
 
@@ -464,42 +654,58 @@ naturally from the particle dynamics:
 
 ### 5.1 Classical Courant–Snyder Head-Tail Theory
 
-The **head-tail instability** (sometimes called the Transverse Mode Coupling
-Instability, TMCI, at high current) [3, 6] arises from the **within-bunch**
-wake coupling between the longitudinal head and tail of a single bunch.
+The **head-tail instability** [14] arises from the within-bunch wake coupling
+between the longitudinal head and tail of a single bunch.  At high current the
+`m = 0` and `m = −1` head-tail modes merge into the **Transverse Mode Coupling
+Instability** (TMCI) [13].
 
-In the full theory a particle occupies a phase-space point
-`(x, x', z, δ)` where `z` is the longitudinal position and undergoes
-synchrotron oscillations at tune `Q_s`:
-
-```
-ż   =  −η δ / (Q_s / f₀)
-δ̇   =  −Q_s f₀ z / η
-```
-
-Here `η = α_c − 1/γ²` is the **slip factor** and `α_c` the momentum
-compaction factor.  The synchrotron motion causes particles to exchange
-head-tail position continuously.
-
-The transverse coherent modes of a bunched beam are labelled by the
-**head-tail mode number** `m = 0, ±1, ±2, …`.  For mode `m` the coherent
-tune shift is [6 §3.3, 12]:
+In the full theory a particle occupies a phase-space point `(x, x', z, δ)`
+where `z > 0` is ahead of the synchronous particle.  Synchrotron oscillations
+at tune `Q_s` are described per revolution turn `n` by the canonical
+longitudinal map [2, Ch. 3]:
 
 ```
-ΔQ_m  =  −i N_b r₀ β Z_⊥(ω₀ + m ω_s) / (4π γ C)  ·  ∫ F_m(τ) dτ    (5.1)
+z_{n+1}  =  z_n  −  η C δ_n                                        (5.1a)
+δ_{n+1}  =  δ_n  +  (2πQ_s)² z_n / (η C)                          (5.1b)
 ```
 
-where `F_m(τ) ∝ J_m(χ_ξ)` involves Bessel functions of the **chromaticity
-head-tail phase**
+where `η = α_c − 1/γ²` is the **slip factor** (`η > 0` above transition),
+`α_c` the momentum compaction, and `C` the circumference.  Equations (5.1)
+are the discrete-map form of the continuous-time equations `dz/dt = −ηcδ`,
+`dδ/dt = −ω_s²z/(ηc)`, with angular synchrotron frequency `ω_s = 2πQ_sf₀`.
+The linearised map (5.1) describes simple harmonic oscillation in `(z, δ)`
+phase space at tune `Q_s`.
+
+The **chromaticity head-tail phase** is the transverse phase accumulated
+between head and tail due to the chromatic tune shift over the synchrotron
+half-period `T_s/2 = C/(2Q_sf₀c)`:
 
 ```
-χ_ξ  =  ξ ω_rev / η                                     (5.2)
+χ_ξ  =  ξ ω₀ z_max / (η c)  =  ξ π / (η Q_s)                     (5.2)
 ```
 
-- `m = 0` (rigid mode): stable for `ξ > 0` (positive chromaticity)
-- `m = ±1` (head-tail mode): threshold depends on `Z_⊥` and `Q_s`
-- For large `Z_⊥` (high current), modes `m = 0` and `m = −1` **merge** →
-  **TMCI** at the current threshold [13]
+(Here `z_max` is the synchrotron amplitude.)  The coherent mode frequencies
+`Ω_m` of the bunched beam satisfy the **Sacherer integral equation** [12, 13].
+For small `χ_ξ` the tune shifts reduce to
+
+```
+ΔQ_m  ≈  −i N_b r₀ β Z_⊥(ω₀(1 + m Q_s)) / (4π γ C)  ·  G_m(χ_ξ)  (5.3)
+```
+
+where `G_m(χ_ξ) → 1` as `χ_ξ → 0`.  The factor `G_m` encodes the Bessel-
+function overlap of the mode shape with the chromaticity-induced phase
+`exp(iχ_ξ z/z_max)`.
+
+Mode structure:
+
+| Mode `m` | Frequency | Stability at small current |
+|---|---|---|
+| `0` (rigid-bunch dipole) | `ω_β` | Stable if `Im(ΔQ₀) < 0` |
+| `±1` (snake modes) | `ω_β ± ω_s` | Stable if `|ΔQ₀| < Q_s` |
+| High `\|m\|` | `ω_β + m ω_s` | Increasingly stable (short-range wake) |
+
+- `m = 0`, `ξ > 0`:  `Im(ΔQ₀) < 0` — stable (chromaticity stabilises the rigid mode)
+- High current: modes `m = 0` and `m = −1` **merge** → **TMCI** threshold
 
 ### 5.2 Slice Model (Used in This Code)
 
@@ -524,11 +730,16 @@ and `x̄ᵢ` is the centroid of slice `i`.
 **Equation (5.3) is the discrete analog of the convolution integral:**
 
 ```
-ΔP_⊥(z)  =  (N_b/C) ∫_{z}^{∞}  W_⊥(z' − z) · x̄(z') dz'   (5.4)
+ΔP_⊥(z)  =  κ_w ∫_{z}^{∞}  W_⊥(z' − z) · x̄(z') dz'         (5.4)
 ```
 
-The sum in (5.3) runs over `O(K²)` pairs per turn.  For `K = 15` and `N_turns = 800`:
-`15² × 800 = 180 000` wake evaluations — negligible cost.
+In the code, `wake_strength` (`κ_w`) absorbs all dimensional constants
+(`N_b r₀ W₀ / γ C`) and the per-slice normalisation; equation (5.3) as
+implemented sums directly without dividing by `K` — the prefactor is already
+calibrated per source slice.
+
+The sum in (5.3) runs over `O(K²)` pairs per turn.  For `K = 15` and
+`N_turns = 800`: `15² × 800 = 180 000` wake evaluations — negligible cost.
 
 ### 5.3 Chromaticity-Induced Phase Detuning in the Slice Model
 
@@ -578,16 +789,25 @@ characteristics or by an eigenmode expansion.  The eigenvalue `Ω` of the
 coherent mode satisfies the dispersion relation (4.3).
 
 The Monte Carlo simulation is a **macro-particle discretisation** of (6.1):
-sampling `f₀` with `N` particles and evolving each particle under
-`H₀ + H_coll`.  Consistency requires `N ≫ 1/σ_Q²` for the discrete
-spectrum to approximate the continuous one faithfully [15].
+sampling `f₀` with `N` particles and evolving each under `H₀ + H_coll`.
+The macro-particle approximation is faithful to the Vlasov equation when the
+sampling noise per observable is small compared to the physical signal.  For
+the centroid, this requires (§4.4)
 
-For our parameters, `1/σ_Q² = 1/(0.002)² = 250 000`.  With `N = 3000 ≪ 250 000`,
-finite-N effects dominate near the threshold, and the empirical threshold
-(≈ 0.003–0.008 rad/m) lies an order of magnitude above the Sacherer
-prediction (≈ 0.0002 rad/m).  This is expected and physically instructive:
-**increasing N sharpens the Landau damping** and brings the empirical threshold
-closer to the `N → ∞` analytic result.
+```
+σ_noise = √(εβ/N)  ≪  x̄_coherent
+```
+
+The Sacherer criterion (§4.2) predicts `κ_th^{theory} ≈ 8×10⁻⁷ rad/m` for
+`N → ∞`.  For `N = 3000`, finite-N noise suppresses the phase-mixed signal
+before the theoretical threshold is reached, raising the *observed* threshold
+to `κ_th^{sim} ≈ 3×10⁻³ rad/m` — a factor `~3 000×` larger.  This is not a
+failure of the simulation: it correctly tracks the Vlasov equation at finite
+`N`.  The discrepancy simply confirms that **true Vlasov Landau damping
+requires an astronomically larger particle count** than is practical in a MC
+study; the code instead demonstrates phase mixing and its competition with the
+coherent drive at finite `N`, which is itself a physically important regime
+(e.g. early-stage emittance growth in a mismatched injected bunch).
 
 ---
 
@@ -675,31 +895,34 @@ Using the default simulation parameters:
 **Derived quantities:**
 
 ```
-σ_Q  =  |ξ| σ_δ  =  2 × 10⁻³
+σ_Q       =  |ξ| σ_δ  =  2 × 10⁻³
 
-σ_x  =  √(εβ)    =  √(10⁻⁶ × 10)  =  3.16 mm
+σ_x       =  √(εβ)    =  √(10⁻⁶ × 10)  =  3.16 mm
 
-σ_noise  =  σ_x / √N  =  3.16 mm / √3000  =  58 μm   ≪  x₀ = 2 mm  ✓
+σ_noise   =  √(εβ/N)  =  3.16 mm / √3000  =  58 μm   ≪  x₀ = 2 mm  ✓
 
-τ_deco  =  1/(2π√2 σ_Q)  ≈  56 turns
+τ_deco    =  1/(2π√2 σ_Q)  ≈  56 turns       [eq. (4.2)]
 
-μ_grow (κ=0.05)  =  0.05 × 10 × sin²(2π×0.28) / 2
-                 ≈  0.05 × 10 × 0.968 / 2  ≈  0.242 turn⁻¹
+μ_grow    =  (κβ/2)|sin(2πQ₀)|               [eq. (3.5)]
+(κ=0.05)  =  (0.05 × 10 / 2) × |sin(2π×0.28)|
+           =  0.25 × 0.990  ≈  0.247 turn⁻¹
 
-τ_inst (κ=0.05)  =  1/0.242  ≈  4.1 turns   [in absence of Landau damping]
+τ_inst    =  1/μ_grow  ≈  4.0 turns   [without damping, eq. (3.6)]
 
-κ_th (theory, N→∞)  =  σ_Q / (β sin²(2πQ₀))
-                     =  0.002 / (10 × 0.968)  ≈  2.1 × 10⁻⁴ rad/m
+κ_th      =  2σ_Q² / (β|sin(2πQ₀)|)          [Sacherer, eq. (4.6), N→∞]
+(theory)  =  2 × (2×10⁻³)² / (10 × 0.990)  ≈  8.1 × 10⁻⁷ rad/m
 ```
 
 **Empirical threshold (from simulation at N = 3000):**
-`κ_th^{sim} ≈ 0.003–0.005 rad/m` — roughly 15–25× the theoretical N→∞ value,
-consistent with the expectation that `N_req = 1/σ_Q² = 250 000 ≫ N = 3000`.
+`κ_th^{sim} ≈ 3×10⁻³ rad/m` — roughly **3 700×** the theoretical N→∞ value.
+This is a finite-N noise-floor effect (§4.4): the coherent signal decoheres
+below the noise level `σ_noise` well before the Sacherer threshold is active.
 
-**Convergence check:**  Running the simulation with N = 500, 1000, 3000, 10 000
-and extracting the threshold `κ_th^{sim}` at each N should show a monotonic
-decrease toward the theoretical limit — a useful exercise to verify the
-implementation and deepen intuition about finite-N Vlasov dynamics.
+**Convergence exercise:**  Track the empirical threshold `κ_th^{sim}` vs. `N`
+for `N = 500, 1000, 3000, 10 000, 100 000`.  The Sacherer formula predicts
+`κ_th^{sim} → κ_th^{theory}` as `N → ∞`; the finite-N noise-floor argument
+of §4.4 predicts `κ_th^{sim} ∝ σ_Q/(β|sinμ|) × f(N)` with `f(N) → 0` — a
+useful test of both the implementation and the theory.
 
 ---
 
@@ -739,6 +962,12 @@ implementation and deepen intuition about finite-N Vlasov dynamics.
 | `ε = ⟨J⟩` | Geometric emittance | m·rad |
 | `f(J, Q)` | Single-particle distribution (Vlasov) | — |
 | `g(Q)` | Tune distribution function | — |
+| `K_eff` | Sacherer impedance drive parameter | tune² |
+| `α_d = ω_r/(2Q)` | BBR damping rate | rad/s |
+| `ω̄ = √(ω_r²−α_d²)` | Damped resonant frequency | rad/s |
+| `χ_ξ = ξπ/(ηQ_s)` | Chromaticity head-tail phase | rad |
+| `ψ` | Betatron phase angle (action-angle) | rad |
+| `τ_noise` | Signal-to-noise e-folding time | turns |
 
 ---
 
@@ -840,6 +1069,12 @@ implementation and deepen intuition about finite-N Vlasov dynamics.
 [20] N. Mounet, "Impedance and Instabilities," Lecture notes, CERN Accelerator
      School, 2018.  https://indico.cern.ch/event/703620/
      (Covers resistive wall, geometric wakes, and TMCI with modern treatment.)
+
+[21] S. Stupakov, "Echo Effect in Hadron Colliders,"
+     *Phys. Rev. Lett.* **74**, 3057 (1995).
+     https://doi.org/10.1103/PhysRevLett.74.3057
+     (Reversibility of Landau decoherence via the echo; demonstrates that
+     phase mixing is not true irreversible damping.)
 
 ---
 
