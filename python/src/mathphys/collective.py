@@ -143,6 +143,96 @@ from mathphys.storage_ring import BeamParams, RingParams, rms_emittance
 
 
 # ---------------------------------------------------------------------------
+# Module-level physics utilities
+# ---------------------------------------------------------------------------
+
+
+def sacherer_threshold(sigma_Q: float, beta: float, tune: float) -> float:
+    """Sacherer–Gaussian Landau-damping threshold for the rigid-bunch mode.
+
+    Derived from the Vlasov dispersion integral for a Gaussian tune
+    distribution (Lee §4.3, theory doc §4.2, eq. 4.6):
+
+    .. math::
+
+        \\kappa_{\\rm th} = \\frac{2\\,\\sigma_Q^2}{\\beta\\,|\\sin(2\\pi Q_0)|}
+
+    Valid in the ``N → ∞`` Vlasov limit.  For finite ``N`` the empirical
+    threshold is higher due to finite-ensemble noise (see theory doc §4.4).
+
+    Parameters
+    ----------
+    sigma_Q : float
+        RMS tune spread.  For chromaticity-dominated spread: ``σ_Q = |ξ| σ_δ``.
+    beta : float
+        Beta function at the kick location [m].
+    tune : float
+        Bare betatron tune ``Q₀``.
+
+    Returns
+    -------
+    float
+        Threshold coherent kick strength ``κ_th`` [rad/m].
+    """
+    return 2.0 * sigma_Q**2 / (beta * abs(np.sin(2.0 * np.pi * tune)))
+
+
+def _bbr_wake(dz: NDArray, W0: float, z_w: float, Q: float) -> NDArray:
+    """Transverse broad-band resonator (BBR) wake function (vectorized).
+
+    Implements the exact inverse Fourier transform of the BBR impedance
+    (Lee §4.1, theory doc §2.4):
+
+    .. code-block:: text
+
+        W_⊥(Δz) = W₀ e^{−Δz/z_w} × [cos(ω̄ Δz/c) + (α_d/ω̄) sin(ω̄ Δz/c)]
+
+    where ``α_d = c/z_w`` is the damping rate and
+    ``ω̄/c = sqrt(4Q²−1)/z_w`` is the damped oscillation wave-number
+    (purely real for ``Q > ½``).
+
+    Special cases:
+
+    * ``Q = 0`` or ``Q < ½``:  pure-exponential / over-damped (no sign change).
+    * ``Q = ½``:  critically damped, ``W = W₀(1 + Δz/z_w) e^{−Δz/z_w}``.
+    * ``Q > ½``:  under-damped, oscillatory wake with sign reversals.
+
+    Parameters
+    ----------
+    dz : array-like
+        Longitudinal separation(s) Δz ≥ 0 [m] (head − tail).
+    W0 : float
+        Peak wake amplitude (at ``Δz = 0``).
+    z_w : float
+        Wake decay length [m] (``= 2Qc/ω_r``).
+    Q : float
+        BBR quality factor.  ``Q = 0`` → pure exponential (code default).
+
+    Returns
+    -------
+    ndarray
+        Wake values at each ``dz``.
+    """
+    dz = np.asarray(dz, dtype=float)
+    base = W0 * np.exp(-dz / z_w)
+    if Q == 0.0:
+        return base
+    alpha_d = 1.0 / z_w                    # damping rate [1/m]
+    omega_r = 2.0 * Q * alpha_d             # ω_r/c [1/m]
+    disc = omega_r**2 - alpha_d**2          # α_d²(4Q²−1)
+    if disc > 0.0:                          # Q > ½: underdamped
+        omega_bar = np.sqrt(disc)
+        return base * (np.cos(omega_bar * dz)
+                       + (alpha_d / omega_bar) * np.sin(omega_bar * dz))
+    elif disc == 0.0:                       # Q = ½: critically damped
+        return base * (1.0 + alpha_d * dz)
+    else:                                   # Q < ½: overdamped
+        Omega = np.sqrt(-disc)
+        return base * (np.cosh(Omega * dz)
+                       + (alpha_d / Omega) * np.sinh(Omega * dz))
+
+
+# ---------------------------------------------------------------------------
 # Parameter container
 # ---------------------------------------------------------------------------
 
@@ -174,6 +264,23 @@ class CollectiveParams:
     x0_offset : float
         Initial centroid displacement [m] added to all particles to seed
         the coherent mode.
+    synchrotron_tune : float
+        **Head-tail mode.**  Fractional synchrotron tune Q_s (default 0 =
+        no synchrotron motion).  When non-zero, the longitudinal coordinates
+        ``(z, δ)`` are rotated by the exact linearised synchrotron map each
+        turn (Lee §3.2), making the head-tail model physically complete and
+        enabling TMCI-threshold studies.
+    slip_factor : float
+        Slip factor η = α_c − 1/γ².  Positive above transition.  Defines
+        the longitudinal beta function β_s = ηC/(2πQ_s) [m].
+    circumference : float
+        Ring circumference C [m].  Together with slip_factor and
+        synchrotron_tune determines the longitudinal phase-space scale.
+    resonator_Q : float
+        **Head-tail mode.**  BBR quality factor Q for the transverse
+        impedance model (Lee §4.1).  Q = 0 (default) → pure exponential
+        wake W₀ exp(−Δz/z_w), valid for Q_resonator ≪ 1.  Q ≥ 0.5 →
+        oscillatory wake that changes sign at half the resonator wavelength.
     """
 
     mode: str = "transverse"
@@ -183,6 +290,16 @@ class CollectiveParams:
     n_slices: int = 20
     sigma_z: float = 0.01
     x0_offset: float = 2e-3
+    # --- Synchrotron oscillations (Lee §3.2, §4.2) --------------------------
+    synchrotron_tune: float = 0.0
+    """Fractional synchrotron tune Q_s.  0 disables longitudinal motion."""
+    slip_factor: float = 1e-3
+    """Slip factor η = α_c − 1/γ².  Active only when synchrotron_tune > 0."""
+    circumference: float = 100.0
+    """Ring circumference C [m].  Active only when synchrotron_tune > 0."""
+    # --- BBR impedance quality factor (Lee §4.1) ----------------------------
+    resonator_Q: float = 0.0
+    """BBR quality factor.  0 → pure exponential (default).  >0 → oscillatory."""
 
 
 # ---------------------------------------------------------------------------
@@ -299,6 +416,21 @@ class CollectiveRing:
             if r.sextupole_strength != 0.0:
                 xp -= r.sextupole_strength * x**2
 
+            # ── synchrotron oscillations (Lee §3.2) ───────────────────────
+            # Exact linearised (z, δ) rotation at tune Q_s.
+            # β_s = ηC/(2πQ_s) is the longitudinal beta function.
+            # Updating δ each turn couples the chromatic tune shift
+            # Q₀ + ξδ to the longitudinal phase-space motion, which is
+            # the essential physics of the head-tail instability.
+            if coll.synchrotron_tune > 0.0:
+                phi_s = 2.0 * np.pi * coll.synchrotron_tune
+                beta_s = (coll.slip_factor * coll.circumference
+                          / (2.0 * np.pi * coll.synchrotron_tune))
+                cos_s, sin_s = np.cos(phi_s), np.sin(phi_s)
+                z_new = cos_s * z - beta_s * sin_s * delta
+                delta = (sin_s / beta_s) * z + cos_s * delta
+                z = z_new
+
             # ── aperture ──────────────────────────────────────────────────
             alive &= np.abs(x) <= r.aperture
             x[~alive] = 0.0
@@ -352,50 +484,58 @@ class CollectiveRing:
         alive: NDArray,
         coll: CollectiveParams,
     ) -> None:
-        """Sliced wake kick — head slices drive tail slices.
+        """Sliced wake kick — head slices drive tail slices (vectorised).
 
         Convention: larger z = head (arrives first at impedance source).
-        Wake function: W(Δz) = W₀ · exp(−Δz / z_w),  Δz = z_head − z_tail ≥ 0.
+        Wake model selected by ``coll.resonator_Q``:
+
+        * ``resonator_Q = 0`` (default): W(Δz) = W₀ exp(−Δz/z_w).
+        * ``resonator_Q > 0``: full BBR oscillatory wake (Lee §4.1).
+
+        The wake matrix ``W[j, i] = W(z_i − z_j)`` for ``z_i ≥ z_j``
+        (upper-triangular in z-order) is built in a single numpy
+        outer-difference call, replacing the O(K²) Python double loop.
+        The kick per slice is then a matrix–vector product:
+
+        .. code-block:: text
+
+            kick[j] = Σ_i  W[j,i] · x̄_i
         """
         if not alive.any():
             return
 
         z_live = z[alive]
         x_live = x[alive]
-        xp_live = xp[alive]
 
         z_min = z_live.min() - 1e-12
         z_max = z_live.max() + 1e-12
         edges = np.linspace(z_min, z_max, coll.n_slices + 1)
         centers = 0.5 * (edges[:-1] + edges[1:])
 
-        # Centroid and particle count per slice
-        slice_idx = np.searchsorted(edges[1:], z_live)  # 0…n_slices-1
+        # Centroid per slice (empty slices → 0)
+        slice_idx = np.searchsorted(edges[1:], z_live)   # 0…K-1
         x_bar_slice = np.zeros(coll.n_slices)
-        n_slice = np.zeros(coll.n_slices, dtype=int)
         for k in range(coll.n_slices):
             mask_k = slice_idx == k
             if mask_k.any():
                 x_bar_slice[k] = float(np.mean(x_live[mask_k]))
-                n_slice[k] = mask_k.sum()
 
-        # For each slice j (tail, lower z) compute kick from all head slices i (higher z)
-        kick_per_slice = np.zeros(coll.n_slices)
-        for j in range(coll.n_slices):
-            if n_slice[j] == 0:
-                continue
-            for i in range(coll.n_slices):
-                if n_slice[i] == 0:
-                    continue
-                dz = centers[i] - centers[j]  # positive when i is head of j
-                if dz < 0.0:
-                    continue
-                w = coll.wake_strength * np.exp(-dz / coll.wake_range)
-                kick_per_slice[j] += w * x_bar_slice[i]
+        # Vectorised wake matrix: dz_matrix[j, i] = centers[i] − centers[j]
+        # Positive entry means slice i is ahead of slice j.
+        dz_matrix = centers[np.newaxis, :] - centers[:, np.newaxis]  # (K, K)
 
-        # Apply kick to live particles
-        kick_arr = kick_per_slice[slice_idx]
-        xp[alive] += kick_arr
+        # Evaluate wake only for dz ≥ 0 (causal: head drives tail)
+        W_matrix = np.where(
+            dz_matrix >= 0.0,
+            _bbr_wake(np.maximum(dz_matrix, 0.0),
+                      coll.wake_strength, coll.wake_range, coll.resonator_Q),
+            0.0,
+        )
+
+        # kick[j] = Σ_i W[j,i] · x̄_i  (matrix–vector product)
+        kick_per_slice = W_matrix @ x_bar_slice
+
+        xp[alive] += kick_per_slice[slice_idx]
 
 
 # ---------------------------------------------------------------------------
@@ -429,3 +569,42 @@ class CollectiveResult:
     ring: RingParams
     beam: BeamParams
     collective: CollectiveParams
+
+    # ------------------------------------------------------------------
+    # Analytic diagnostics (Lee §3.3, §4.2)
+    # ------------------------------------------------------------------
+
+    @property
+    def theoretical_growth_rate(self) -> float:
+        """Analytical growth rate μ_grow = (κ β / 2)|sin(2π Q₀)| [turns⁻¹].
+
+        From the action-angle derivation (Lee §3.3 / theory doc eq. 3.5).
+        Valid for the rigid-bunch transverse mode; returns 0 for head-tail.
+        """
+        if self.collective.mode != "transverse":
+            return 0.0
+        return (self.collective.kappa * self.ring.beta / 2.0) * abs(
+            np.sin(2.0 * np.pi * self.ring.tune)
+        )
+
+    @property
+    def theoretical_decoherence_time(self) -> float:
+        """Decoherence time τ_deco = 1/(2π√2 σ_Q) [turns] (Lee §4.2, eq. 4.2).
+
+        The Gaussian centroid envelope falls to 1/e after this many turns.
+        Returns ``inf`` when chromaticity or momentum spread is zero.
+        """
+        sigma_Q = abs(self.ring.chromaticity) * self.beam.momentum_spread
+        if sigma_Q == 0.0:
+            return np.inf
+        return 1.0 / (2.0 * np.pi * np.sqrt(2.0) * sigma_Q)
+
+    @property
+    def sacherer_kth(self) -> float:
+        """Sacherer Landau threshold κ_th in the N→∞ Vlasov limit (Lee §4.3).
+
+        Computed from :func:`sacherer_threshold` using the ring and beam
+        parameters stored in this result.
+        """
+        sigma_Q = abs(self.ring.chromaticity) * self.beam.momentum_spread
+        return sacherer_threshold(sigma_Q, self.ring.beta, self.ring.tune)

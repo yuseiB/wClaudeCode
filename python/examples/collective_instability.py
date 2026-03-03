@@ -1,6 +1,6 @@
 """Monte Carlo collective-instability demonstration.
 
-Three scenarios (left = |x̄(turn)| log scale, right = phase-space scatter):
+Four scenarios (left = |x̄(turn)| log scale, right = phase-space scatter):
 
   Scenario 1 — Rigid-bunch BELOW Landau-damping threshold
     κ = 0.001 rad/m  (threshold ≈ 0.005–0.008 rad/m)
@@ -13,6 +13,12 @@ Three scenarios (left = |x̄(turn)| log scale, right = phase-space scatter):
 
   Scenario 3 — Head-tail: ξ = 0 (unstable) vs ξ = −2 (Landau-stable)
     Sliced wake drives centroid; chromaticity provides Landau damping.
+
+  Scenario 4 — Head-tail: synchrotron motion (Lee §3.2, §4.2)
+    Same wake as Scenario 3 (ξ = 0) but now particles undergo longitudinal
+    synchrotron oscillations (Q_s = 0.02) so head and tail swap over half
+    a synchrotron period (~25 turns).  Synchrotron mixing smears the coherent
+    wake drive, demonstrating the Courant-Snyder stabilisation mechanism.
 
 Notes
 -----
@@ -31,7 +37,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from mathphys.collective import CollectiveParams, CollectiveRing
+from mathphys.collective import CollectiveParams, CollectiveRing, sacherer_threshold
 from mathphys.storage_ring import BeamParams, RingParams
 
 # ---------------------------------------------------------------------------
@@ -46,11 +52,11 @@ RING = RingParams(tune=0.28, beta=10.0, alpha=0.0,
 BEAM = BeamParams(emittance=1e-6, momentum_spread=1e-3,
                   n_particles=N_PART, seed=42)
 
-# σ_Q = |ξ| σ_δ = 0.002  →  κ_th ≈ σ_Q / (β sin²(2πQ)) ≈ 0.005–0.008 rad/m
-KTH = abs(RING.chromaticity) * BEAM.momentum_spread / (
-    RING.beta * np.sin(2 * np.pi * RING.tune) ** 2
-)
-print(f"Estimated Landau threshold  κ_th ≈ {KTH:.4f} rad/m")
+# σ_Q = |ξ| σ_δ = 0.002  →  Sacherer threshold (Lee §4.3, N→∞ Vlasov limit)
+sigma_Q = abs(RING.chromaticity) * BEAM.momentum_spread
+KTH = sacherer_threshold(sigma_Q, RING.beta, RING.tune)
+print(f"Sacherer Landau threshold  κ_th ≈ {KTH:.2e} rad/m  (N→∞ Vlasov limit)")
+print(f"  (finite-N empirical threshold at N={N_PART} is ~3000× larger)")
 
 scenarios = [
     {
@@ -83,6 +89,19 @@ HT_COLL = CollectiveParams(
 ht_scenarios = [("ξ = 0  (no chromaticity)", HT_RING_NO, HT_BEAM, HT_COLL),
                 ("ξ = −2  (chromaticity)", HT_RING_XI, HT_BEAM, HT_COLL)]
 
+# Scenario 4 — synchrotron oscillations (Lee §3.2, §4.2)
+# Q_s = 0.02 → synchrotron half-period ≈ 25 turns ≈ σ_z / (z_w / 2)
+# β_s = η C / (2π Q_s) = 1e-3 * 100 / (2π * 0.02) ≈ 0.80 m
+HT_COLL_SYNCH = CollectiveParams(
+    mode="headtail", wake_strength=0.005,
+    wake_range=0.008, n_slices=15, sigma_z=0.01, x0_offset=2e-3,
+    synchrotron_tune=0.02, slip_factor=1e-3, circumference=100.0,
+)
+synch_scenarios = [
+    ("No synchrotron  (Q_s = 0)", HT_RING_NO, HT_BEAM, HT_COLL),
+    ("Synchrotron  (Q_s = 0.02)", HT_RING_NO, HT_BEAM, HT_COLL_SYNCH),
+]
+
 # ---------------------------------------------------------------------------
 # Run tracking
 # ---------------------------------------------------------------------------
@@ -99,7 +118,7 @@ for sc in scenarios:
           f"early|x̄|={np.mean(cx[10:100])*1e3:.3f}mm  "
           f"late|x̄|={np.mean(cx[600:800])*1e3:.3f}mm")
 
-print("Tracking: Head-tail pair ...", flush=True)
+print("Tracking: Head-tail chromaticity pair ...", flush=True)
 ht_results = []
 for lbl, ring, bm, coll in ht_scenarios:
     tracker = CollectiveRing(ring, bm, coll)
@@ -109,11 +128,21 @@ for lbl, ring, bm, coll in ht_scenarios:
     print(f"  [{lbl}]  early|x̄|={np.mean(cx[10:100])*1e3:.3f}mm  "
           f"late|x̄|={np.mean(cx[600:800])*1e3:.3f}mm")
 
+print("Tracking: Synchrotron-oscillation pair (Lee §3.2) ...", flush=True)
+synch_results = []
+for lbl, ring, bm, coll in synch_scenarios:
+    tracker = CollectiveRing(ring, bm, coll)
+    res = tracker.track(n_turns=N_TURNS)
+    synch_results.append((lbl, res))
+    cx = np.abs(res.centroid_x)
+    print(f"  [{lbl}]  early|x̄|={np.mean(cx[10:100])*1e3:.3f}mm  "
+          f"late|x̄|={np.mean(cx[600:800])*1e3:.3f}mm")
+
 # ---------------------------------------------------------------------------
 # Figure
 # ---------------------------------------------------------------------------
 
-fig, axes = plt.subplots(3, 2, figsize=(12, 10))
+fig, axes = plt.subplots(4, 2, figsize=(12, 13))
 fig.suptitle(
     "Monte Carlo Collective Instabilities  (rigid-bunch wake + sliced head-tail)",
     fontsize=13, fontweight="bold",
@@ -187,6 +216,41 @@ ax_ps3.set_ylabel("x′  [mrad]", fontsize=8)
 ax_ps3.tick_params(labelsize=7)
 ax_ps3.legend(fontsize=7, markerscale=5)
 ax_ps3.set_title("Phase space  (ξ = 0, head-tail)", fontsize=9)
+
+# Row 4: synchrotron oscillation comparison (Lee §3.2, §4.2)
+ax_c4, ax_ps4 = axes[3]
+synch_colors = ["#d62728", "#2ca02c"]
+for (lbl, sr), col in zip(synch_results, synch_colors):
+    cx = np.abs(sr.centroid_x)
+    cx_plot = np.where(cx > 1e-8, cx, 1e-8)
+    ax_c4.semilogy(turns, cx_plot * 1e3, color=col, lw=0.9, label=lbl)
+
+ax_c4.axhline(HT_COLL_SYNCH.x0_offset * 1e3, color="grey", lw=0.7, ls=":",
+              label="initial offset")
+ax_c4.set_xlim(0, N_TURNS)
+ax_c4.set_xlabel("Turn", fontsize=8)
+ax_c4.set_ylabel("|x̄|  [mm]", fontsize=8)
+ax_c4.tick_params(labelsize=7)
+ax_c4.set_title(
+    "Head-tail: synchrotron oscillations  (Lee §3.2, §4.2)\n"
+    r"$Q_s = 0.02,\;\eta = 10^{-3},\;C = 100\,\mathrm{m}$",
+    fontsize=9,
+)
+ax_c4.legend(fontsize=7)
+
+_, synch_ref = synch_results[0]
+snap_turns = sorted(synch_ref.snapshots.keys())
+x0, xp0 = synch_ref.snapshots[snap_turns[0]]
+xf, xpf = synch_ref.snapshots[snap_turns[-1]]
+ax_ps4.scatter(x0 * 1e3, xp0 * 1e3, s=1, alpha=0.2, color="steelblue",
+               label=f"Turn {snap_turns[0]}")
+ax_ps4.scatter(xf * 1e3, xpf * 1e3, s=1, alpha=0.2, color="tomato",
+               label=f"Turn {snap_turns[-1]}")
+ax_ps4.set_xlabel("x  [mm]", fontsize=8)
+ax_ps4.set_ylabel("x′  [mrad]", fontsize=8)
+ax_ps4.tick_params(labelsize=7)
+ax_ps4.legend(fontsize=7, markerscale=5)
+ax_ps4.set_title("Phase space  (Q_s = 0, no synchrotron)", fontsize=9)
 
 plt.tight_layout()
 out = os.path.abspath(
