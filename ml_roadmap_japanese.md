@@ -2,6 +2,7 @@
 
 > **参考元**: [roadmap.sh/machine-learning](https://roadmap.sh/machine-learning) / [roadmap.sh/ai-data-scientist](https://roadmap.sh/ai-data-scientist)
 > **対象期間**: 約 9〜12 ヶ月（プログラミング経験者の場合 6 ヶ月も可能）
+> **凡例**: 🆓 = 無料・オンライン公開あり　📖 = 有料書籍
 
 ---
 
@@ -24,12 +25,14 @@
 - 仮説検定・信頼区間
 - 統計的推定
 
-### 推薦教科書
-| タイトル | 著者 | 特徴 |
-|---|---|---|
-| **「機械学習のための数学」** (*Mathematics for Machine Learning*) | Deisenroth, Faisal, Ong | ML に必要な数学を網羅、無料 PDF あり |
-| **「統計学入門」** | 東京大学教養学部統計学教室 | 日本語で読める定番統計入門 |
-| **「線形代数入門」** | 松坂和夫 | 日本語の丁寧な線形代数テキスト |
+### 推薦教科書・リソース
+
+| タイトル | 著者 | 入手 | 特徴 |
+|---|---|---|---|
+| **Mathematics for Machine Learning** | Deisenroth, Faisal, Ong | 🆓 [mml-book.github.io](https://mml-book.github.io/) | ML に必要な数学を一冊で網羅。英語だが公式 PDF 無料公開 |
+| **メディカルAI専門コース 数学基礎** | 日本メディカルAI学会 | 🆓 [japan-medical-ai.github.io](https://japan-medical-ai.github.io/medical-ai-course-materials/notebooks/01_Basic_Math_for_ML.html) | 線形代数・微分・確率を Google Colab で実行しながら学べる日本語教材 |
+| **東工大「機械学習帳」** | 東京工業大学 | 🆓 [chokkan.github.io/mlnote](https://chokkan.github.io/mlnote/) | 図・アニメーション豊富な日本語の機械学習講義ノート |
+| **「統計学入門」（赤本）** | 東京大学教養学部統計学教室 | 📖 | 日本語定番統計テキスト。確率・推定・検定を体系的に学習 |
 
 ---
 
@@ -48,12 +51,14 @@
 - Jupyter Notebook / Google Colab
 - Git / GitHub によるバージョン管理
 
-### 推薦教科書
-| タイトル | 著者 | 特徴 |
-|---|---|---|
-| **「Pythonチュートリアル」** | Guido van Rossum（公式ドキュメント） | 公式・無料・日本語あり |
-| **「Pythonによるデータ分析入門」** | Wes McKinney（著）、小林儀匡（訳） | Pandas 作者による実践書 |
-| **「Python機械学習プログラミング」** | Sebastian Raschka, Vahid Mirjalili | scikit-learn を使った実践入門（日本語訳あり） |
+### 推薦教科書・リソース
+
+| タイトル | 著者 | 入手 | 特徴 |
+|---|---|---|---|
+| **Python チュートリアル（公式）** | Python Software Foundation | 🆓 [docs.python.org/ja/3/tutorial](https://docs.python.org/ja/3/tutorial/) | 公式・完全無料・日本語あり。Python の基礎はここから |
+| **東大松尾研「DL4US」** | 東京大学松尾研究室 | 🆓 [github.com/matsuolab/DL4US](https://github.com/matsuolab/DL4US) | NumPy/scikit-learn から深層学習まで対応の Jupyter ベース日本語教材 |
+| **「Pythonによるデータ分析入門」** | Wes McKinney（著）、小林儀匡（訳） | 📖 | Pandas 作者自身が書いた定番実践書。日本語訳あり |
+| **「Python機械学習プログラミング」** | Sebastian Raschka, Vahid Mirjalili | 📖 | scikit-learn を使った実践入門。日本語訳（第3版）あり |
 
 ---
 
@@ -87,12 +92,15 @@
 - 正規化・標準化
 - データ拡張
 
-### 推薦教科書
-| タイトル | 著者 | 特徴 |
-|---|---|---|
-| **「scikit-learnとTensorFlowによる実践機械学習」** | Aurélien Géron（著）、下田倫大（訳） | 最も有名な ML 実践書。第3版まで日本語訳あり |
-| **「機械学習 理論から実践へ」** (*Understanding Machine Learning*) | Shalev-Shwartz, Ben-David | 理論的背景をしっかり学びたい人向け |
-| **「パターン認識と機械学習」（PRML）** | Christopher M. Bishop（著）、元田浩ほか（訳） | ML の聖典。上下2巻で日本語訳あり |
+### 推薦教科書・リソース
+
+| タイトル | 著者 | 入手 | 特徴 |
+|---|---|---|---|
+| **パターン認識と機械学習の学習 普及版** | 光成滋生 | 🆓 [herumi.github.io/prml](https://herumi.github.io/prml/) | PRML（Bishop本）の日本語解説 PDF。CC ライセンスで無料公開 |
+| **awesome-prml-ja（PRML 解説資料集）** | tsg-ut（有志） | 🆓 [github.com/tsg-ut/awesome-prml-ja](https://github.com/tsg-ut/awesome-prml-ja) | PRML に関する日本語の勉強会・読書会資料を集約した GitHub リポジトリ |
+| **Interpretable Machine Learning 日本語版** | Christoph Molnar（著）、HACARUS（訳） | 🆓 [hacarus.github.io/interpretable-ml-book-ja](https://hacarus.github.io/interpretable-ml-book-ja/) | モデルの解釈可能性を扱う名著の非公式日本語訳。無料公開 |
+| **「scikit-learnとTensorFlowによる実践機械学習」** | Aurélien Géron（著）、下田倫大（訳） | 📖 | 最も有名な ML 実践書。第3版まで日本語訳あり |
+| **「パターン認識と機械学習」（PRML）** | Christopher M. Bishop（著）、元田浩ほか（訳） | 📖（英語原書は 🆓 [Microsoft Research](https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/)） | ML の聖典。英語原書 PDF は Microsoft Research で無料公開。日本語訳は有料書籍（上下2巻） |
 
 ---
 
@@ -123,12 +131,15 @@
 - **PyTorch**: 研究・最先端向け（推奨）
 - **TensorFlow / Keras**: プロダクション向け
 
-### 推薦教科書
-| タイトル | 著者 | 特徴 |
-|---|---|---|
-| **「深層学習」（Deep Learning）** | Goodfellow, Bengio, Courville（著）、岩澤有祐ほか（訳） | 深層学習の教科書。日本語訳あり（通称 GBC 本） |
-| **「ゼロから作るDeep Learning」シリーズ** | 斎藤康毅 | Python で一から実装。日本語オリジナル。大人気シリーズ |
-| **「PyTorchによる自然言語処理」** | Delip Rao, Brian McMahan（著）、和田崇仁（訳） | PyTorch と NLP の実践書 |
+### 推薦教科書・リソース
+
+| タイトル | 著者 | 入手 | 特徴 |
+|---|---|---|---|
+| **Deep Learning（Goodfellow）** | Goodfellow, Bengio, Courville | 🆓 [deeplearningbook.org](https://www.deeplearningbook.org/) | 深層学習の定番教科書（通称 GBC 本）。英語だが全文無料公開。日本語訳書籍あり |
+| **愛媛大学「深層学習の基礎と演習」** | 二宮崇（愛媛大学） | 🆓 [aiweb.cs.ehime-u.ac.jp/.../deeplearning.pdf](https://aiweb.cs.ehime-u.ac.jp/~ninomiya/enpitpro/deeplearning.pdf) | 「ゼロから作るDL」準拠の日本語講義資料 PDF。PyTorch 基礎も含む |
+| **東大「DL4US」** | 東京大学松尾研究室 | 🆓 [github.com/matsuolab/DL4US](https://github.com/matsuolab/DL4US) | CNN・RNN・Attention まで扱う日本語 Jupyter 教材 |
+| **「ゼロから作るDeep Learning」シリーズ** | 斎藤康毅 | 📖（コード: 🆓 [github.com/oreilly-japan/deep-learning-from-scratch](https://github.com/oreilly-japan/deep-learning-from-scratch)） | Python で一から実装。日本語オリジナル。全5巻シリーズ（①〜⑤） |
+| **「深層学習」（機械学習プロフェッショナルシリーズ）** | 岡谷貴之 | 📖 | 数理的な深層学習の標準日本語テキスト（講談社） |
 
 ---
 
@@ -153,12 +164,15 @@
 - VAE（変分オートエンコーダ）
 - LLM のファインチューニング（LoRA, PEFT）
 
-### 推薦教科書
-| タイトル | 著者 | 特徴 |
-|---|---|---|
-| **「自然言語処理の基礎」** | 岡崎直観, 荒瀬由紀, 鈴木潤ほか | 日本語 NLP の標準テキスト |
-| **「Transformerによる自然言語処理」** | Lewis Tunstall ほか（著）、中山光樹（訳） | Hugging Face 公式著者による実践書 |
-| **「コンピュータビジョン最前線」** | 井上中順ほか | 日本語 CV 解説書シリーズ |
+### 推薦教科書・リソース
+
+| タイトル | 著者 | 入手 | 特徴 |
+|---|---|---|---|
+| **キカガク NLP 無料チュートリアル** | KIKAGAKU | 🆓 [free.kikagaku.ai/tutorial/basic_of_nlp](https://free.kikagaku.ai/tutorial/basic_of_nlp/) | テキスト前処理から機械学習 NLP までを日本語で解説。無料オンライン |
+| **Hugging Face NLP Course（日本語版）** | Hugging Face | 🆓 [huggingface.co/learn/nlp-course/ja](https://huggingface.co/learn/nlp-course/ja/chapter1/1) | Transformers ライブラリを使った NLP コース。日本語翻訳あり、無料 |
+| **「ゼロから作るDeep Learning ❷」（NLP編）** | 斎藤康毅 | 📖（コード: 🆓 [github.com/oreilly-japan/deep-learning-from-scratch-2](https://github.com/oreilly-japan/deep-learning-from-scratch-2)） | Word2Vec・RNN・Attention を一から実装。日本語オリジナル |
+| **「自然言語処理の基礎」** | 岡崎直観, 荒瀬由紀, 鈴木潤ほか | 📖 | 日本語 NLP の大学院標準テキスト（オーム社、2022年） |
+| **「Transformerによる自然言語処理」** | Lewis Tunstall ほか（著）、中山光樹（訳） | 📖 | Hugging Face 公式著者による実践書。日本語訳あり |
 
 ---
 
@@ -180,11 +194,15 @@
 - 特徴量ストア
 - ビッグデータ（Spark 入門）
 
-### 推薦教科書
-| タイトル | 著者 | 特徴 |
-|---|---|---|
-| **「機械学習システムデザイン」** | Chip Huyen（著）、斉藤隆弘（訳） | MLOps・本番 ML の実践バイブル（日本語訳あり） |
-| **「仕事ではじめる機械学習」** | 有賀康顕, 中山心太, 西林孝 | 日本語で読める実務 ML ガイド |
+### 推薦教科書・リソース
+
+| タイトル | 著者 | 入手 | 特徴 |
+|---|---|---|---|
+| **MLOps Yearning（楽天テック公開スライド）** | 楽天技術者 | 🆓 [slideshare.net/.../mlops-yearning](https://www.slideshare.net/rakutentech/mlops-yearning) | 実運用の ML システムを構築する前に考えること。日本語スライド・無料 |
+| **「機械学習システムデザイン」** | Chip Huyen（著）、斉藤隆弘（訳） | 📖 | MLOps・本番 ML の実践バイブル。日本語訳あり（オライリー） |
+| **「実践MLOps」** | 佐藤光紀ほか | 📖 | AWS を使った ML システム構築と運用。日本語（オーム社） |
+| **「事例でわかるMLOps」** | 杉山阿聖, 太田満久, 久井裕貴 | 📖 | 技術・プロセス・文化の3面から学ぶ MLOps 入門（講談社） |
+| **「仕事ではじめる機械学習」** | 有賀康顕, 中山心太, 西林孝 | 📖 | 日本語で読める実務 ML ガイド（オライリー）。現場のノウハウが豊富 |
 
 ---
 
@@ -222,22 +240,24 @@
 
 ---
 
-## 優先度別 推薦教科書まとめ
+## 無料で読める教材まとめ（🆓 のみ）
 
-### ★★★ 必読（入門〜中級）
-1. **「ゼロから作るDeep Learning」** — 斎藤康毅（日本語オリジナル、実装力強化に最適）
-2. **「scikit-learnとTensorFlowによる実践機械学習」** — Géron 著（日本語訳あり）
-3. **「機械学習のための数学」** — Deisenroth ほか（無料 PDF、英語）
-
-### ★★★ 必読（中級〜上級）
-4. **「深層学習」(GBC)** — Goodfellow ほか（日本語訳あり、理論の深掘りに）
-5. **「パターン認識と機械学習」(PRML)** — Bishop（日本語訳あり、ML の聖典）
-6. **「機械学習システムデザイン」** — Chip Huyen（日本語訳あり、実務向け）
-
-### ★★ 推薦（専門分野）
-7. **「自然言語処理の基礎」** — 岡崎直観ほか（NLP 日本語標準テキスト）
-8. **「Transformerによる自然言語処理」** — Tunstall ほか（Hugging Face 実践）
-9. **「仕事ではじめる機械学習」** — 有賀ほか（実務 ML 日本語ガイド）
+| フェーズ | タイトル | URL |
+|---|---|---|
+| 数学基礎 | Mathematics for Machine Learning（英語） | [mml-book.github.io](https://mml-book.github.io/) |
+| 数学基礎 | メディカルAI専門コース 数学基礎（日本語） | [japan-medical-ai.github.io](https://japan-medical-ai.github.io/medical-ai-course-materials/notebooks/01_Basic_Math_for_ML.html) |
+| 数学基礎 | 東工大「機械学習帳」（日本語） | [chokkan.github.io/mlnote](https://chokkan.github.io/mlnote/) |
+| Python | Python 公式チュートリアル（日本語） | [docs.python.org/ja/3/tutorial](https://docs.python.org/ja/3/tutorial/) |
+| Python / DL | 東大松尾研「DL4US」（日本語） | [github.com/matsuolab/DL4US](https://github.com/matsuolab/DL4US) |
+| ML コア | PRML 日本語解説 PDF（普及版） | [herumi.github.io/prml](https://herumi.github.io/prml/) |
+| ML コア | PRML 英語原書 PDF（Microsoft） | [Microsoft Research](https://www.microsoft.com/en-us/research/publication/pattern-recognition-machine-learning/) |
+| ML コア | Interpretable ML 日本語訳 | [hacarus.github.io/interpretable-ml-book-ja](https://hacarus.github.io/interpretable-ml-book-ja/) |
+| 深層学習 | Deep Learning book（英語） | [deeplearningbook.org](https://www.deeplearningbook.org/) |
+| 深層学習 | 愛媛大学 深層学習講義 PDF（日本語） | [aiweb.cs.ehime-u.ac.jp](https://aiweb.cs.ehime-u.ac.jp/~ninomiya/enpitpro/deeplearning.pdf) |
+| 深層学習 | ゼロから作るDL サンプルコード | [github.com/oreilly-japan/deep-learning-from-scratch](https://github.com/oreilly-japan/deep-learning-from-scratch) |
+| NLP | キカガク NLP チュートリアル（日本語） | [free.kikagaku.ai/tutorial/basic_of_nlp](https://free.kikagaku.ai/tutorial/basic_of_nlp/) |
+| NLP | Hugging Face NLP Course（日本語） | [huggingface.co/learn/nlp-course/ja](https://huggingface.co/learn/nlp-course/ja/chapter1/1) |
+| MLOps | MLOps Yearning スライド（日本語） | [slideshare.net](https://www.slideshare.net/rakutentech/mlops-yearning) |
 
 ---
 
