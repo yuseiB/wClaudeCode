@@ -3,6 +3,9 @@
 > Physics-first educational repository: the same model implemented in five
 > languages (Python, C++, Rust, Julia, TypeScript), organized by physical topic.
 
+See [CLAUDE.md](CLAUDE.md) for the AI-assistant guide and [ROADMAP.md](ROADMAP.md)
+for planned future topics.
+
 ---
 
 ## Repository layout
@@ -12,8 +15,9 @@
 ├── src/mathphys/                     # Shared Python package (pip install -e .)
 │   ├── double_pendulum.py
 │   ├── ising_model.py
-│   ├── cavity.py                     # ← EM cavity modes (new)
-│   ├── waveguide.py                  # ← EM waveguide modes (new)
+│   ├── cavity.py                     # ← EM cavity modes
+│   ├── waveguide.py                  # ← EM waveguide modes
+│   ├── accelerator.py                # ← single-particle accelerator tracking
 │   └── numerics.py
 │
 ├── classical_mechanics/
@@ -32,13 +36,18 @@
 │       ├── julia/  src/ tests/ examples/
 │       └── js/     src/ dist/
 │
-└── electromagnetics/                 # ← NEW
-    └── cavity_waveguide/             # EM cavity & waveguide analytical solutions
-        ├── python/examples/ tests/
-        ├── cpp/    include/ src/ tests/ examples/
-        ├── rust/   src/ src/bin/
-        ├── julia/  src/ tests/ examples/
-        └── js/     src/ dist/          ← interactive field visualizer
+├── electromagnetics/
+│   └── cavity_waveguide/             # EM cavity & waveguide analytical solutions
+│       ├── python/examples/ tests/
+│       ├── cpp/    include/ src/ tests/ examples/
+│       ├── rust/   src/ src/bin/
+│       ├── julia/  src/ tests/ examples/
+│       └── js/     src/ dist/          ← interactive field visualizer
+│
+└── accelerator_physics/
+    └── single_particle/              # FODO lattice & storage-ring tracking
+        ├── python/examples/ tests/ api/  ← FastAPI backend
+        └── js/     src/                  ← TypeScript browser client
 ```
 
 ---
@@ -150,15 +159,32 @@ E and H are 90° out of phase in time — energy oscillates between electric and
 
 ---
 
+### 加速器物理学 / Accelerator Physics
+
+#### Single-Particle Dynamics (`accelerator_physics/single_particle/`)
+
+Single-particle tracking in a simplified storage ring.
+
+| Model | Description |
+|---|---|
+| FODO lattice | Courant–Snyder (Twiss) one-turn map with phase advance |
+| Storage ring | Chromaticity, thin sextupole kick, physical aperture loss |
+| Monte Carlo | Multi-particle beam sampling from matched phase-space distribution |
+
+Exposes a **FastAPI** REST backend (`python/api/`) and a **TypeScript** browser
+client (`js/`) for real-time visualisation of beam phase-space evolution.
+
+---
+
 ## Language summary
 
-| Language | Mechanics / Statistics | EM Cavity & Waveguide | Output |
-|---|---|---|---|
-| **Python** | adaptive RK45 / NumPy MC | scipy Bessel, analytical | matplotlib PNG |
-| **C++** | fixed-step RK4 / Metropolis | Bessel table, analytical | CSV + CTest |
-| **Rust** | fixed-step RK4 / Metropolis | series Bessel, analytical | CSV + unit tests |
-| **Julia** | fixed-step RK4 / Metropolis | SpecialFunctions.jl | CSV |
-| **TypeScript** | fixed-step RK4 / Metropolis | series Bessel, analytical | live browser canvas |
+| Language | Mechanics / Statistics | EM Cavity & Waveguide | Accelerator | Output |
+|---|---|---|---|---|
+| **Python** | adaptive RK45 / NumPy MC | scipy Bessel, analytical | Twiss map + MC | matplotlib PNG / FastAPI |
+| **C++** | fixed-step RK4 / Metropolis | Bessel table, analytical | — | CSV + CTest |
+| **Rust** | fixed-step RK4 / Metropolis | series Bessel, analytical | — | CSV + unit tests |
+| **Julia** | fixed-step RK4 / Metropolis | SpecialFunctions.jl | — | CSV |
+| **TypeScript** | fixed-step RK4 / Metropolis | series Bessel, analytical | browser client | live browser canvas |
 
 ---
 
@@ -342,14 +368,30 @@ npm install && npm run dev          # → http://localhost:5173
 
 ---
 
+### Python — Accelerator Physics
+
+```bash
+# Run examples
+python accelerator_physics/single_particle/python/examples/fodo_demo.py
+python accelerator_physics/single_particle/python/examples/ring_demo.py
+
+# Tests
+python -m pytest accelerator_physics/single_particle/python/tests/
+
+# FastAPI backend (optional)
+uvicorn accelerator_physics.single_particle.python.api.app:app --reload
+```
+
+---
+
 ## Tests
 
-| Language | Double Pendulum | Ising Model | EM Cavity & Waveguide |
-|---|---|---|---|
-| Python | `pytest classical_mechanics/.../tests/` | `pytest statistical_physics/.../tests/` | `pytest electromagnetics/.../tests/` |
-| C++ | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` (28 tests) |
-| Rust | `cargo test` | `cargo test` | `cargo test` (29 tests) |
-| Julia | `julia ... runtests.jl` | `julia ... runtests.jl` | `julia ... runtests.jl` |
+| Language | Double Pendulum | Ising Model | EM Cavity & Waveguide | Accelerator |
+|---|---|---|---|---|
+| Python | `pytest classical_mechanics/.../tests/` | `pytest statistical_physics/.../tests/` | `pytest electromagnetics/.../tests/` | `pytest accelerator_physics/.../tests/` |
+| C++ | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` | `ctest` in `cpp/build/` (28 tests) | — |
+| Rust | `cargo test` | `cargo test` | `cargo test` (29 tests) | — |
+| Julia | `julia ... runtests.jl` | `julia ... runtests.jl` | `julia ... runtests.jl` | — |
 
 ---
 
